@@ -50,7 +50,7 @@ public class AdvancedLocateCommand {
         BlockPos blockPos = BlockPos.ofFloored(source.getPosition());
         ServerWorld serverWorld = source.getWorld();
         Stopwatch stopwatch = Stopwatch.createStarted(Util.TICKER);
-        Pair<BlockPos, RegistryEntry<Structure>> pair = ((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructuresInRadius(serverWorld, registryEntryList, blockPos, 100, false);
+        Pair<BlockPos, RegistryEntry<Structure>> pair = ((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(serverWorld, registryEntryList, blockPos, 100, false);
         stopwatch.stop();
         if (pair == null) {
             AdvancedLocate.LOGGER.info("Did not find anything.");

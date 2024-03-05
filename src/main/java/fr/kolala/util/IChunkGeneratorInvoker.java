@@ -3,6 +3,7 @@ package fr.kolala.util;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.gen.StructureAccessor;
@@ -24,6 +25,11 @@ public interface IChunkGeneratorInvoker {
 
     @Invoker("locateRandomSpreadStructure")
     static Pair<BlockPos, RegistryEntry<Structure>> invokeLocateRandomSpreadStructure(Set<RegistryEntry<Structure>> structures, WorldView world, StructureAccessor structureAccessor, int centerChunkX, int centerChunkZ, int radius, boolean skipReferencedStructures, long seed, RandomSpreadStructurePlacement placement) {
+        throw new AssertionError();
+    }
+
+    @Invoker("checkNotReferenced")
+    static boolean invokeCheckNotReferenced(StructureAccessor structureAccessor, StructureStart start) {
         throw new AssertionError();
     }
 }
