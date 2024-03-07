@@ -21,12 +21,16 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.WorldView;
 import net.minecraft.world.gen.structure.Structure;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 public class AdvancedLocateCommand {
     private static final DynamicCommandExceptionType STRUCTURE_NOT_FOUND_EXCEPTION = new DynamicCommandExceptionType(id -> Text.stringifiedTranslatable("commands.locate.structure.not_found", id));
@@ -44,13 +48,29 @@ public class AdvancedLocateCommand {
         return predicate.getKey().map(key -> structureRegistry.getEntry(key).map(RegistryEntryList::of), structureRegistry::getEntryList);
     }
 
+    private static Set<RegistryEntry<Structure>> getStructureSet(RegistryEntryList<Structure> structures) {
+        Set<RegistryEntry<Structure>> structureSet = new HashSet<>();
+        for (RegistryEntry<Structure> structure : structures) {
+            structureSet.add(structure);
+        }
+        return structureSet;
+    }
+
     private static int executeLocateStructure(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate) throws CommandSyntaxException {
+        Set<Pair<BlockPos, RegistryEntry<Structure>>> structures = new HashSet<>();
+        // TODO: Adapt this method to handle the structureSet
+        // Changing the used method to the one used by the locate command might be the solution, still using the same method to check for already found structures,
+        // but needs to overwrite methods all the way down with mixins, which may be a lot,
+        // may be simpler with injects, maybe we can look for an inject on method call, but not sure
+        // we could counter this by injecting at first return and overwriting
+        // the returned element based on the methods we want to call
+
         Registry<Structure> registry = source.getWorld().getRegistryManager().get(RegistryKeys.STRUCTURE);
         RegistryEntryList<Structure> registryEntryList = getStructureListForPredicate(predicate, registry).orElseThrow(() -> STRUCTURE_INVALID_EXCEPTION.create(predicate.asString()));
         BlockPos blockPos = BlockPos.ofFloored(source.getPosition());
         ServerWorld serverWorld = source.getWorld();
         Stopwatch stopwatch = Stopwatch.createStarted(Util.TICKER);
-        Pair<BlockPos, RegistryEntry<Structure>> pair = ((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(serverWorld, registryEntryList, blockPos, 100, false);
+        Pair<BlockPos, RegistryEntry<Structure>> pair = ((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(getStructureSet(registryEntryList), serverWorld, serverWorld.getStructureAccessor(), false, serverWorld.getChunkManager().getStructurePlacementCalculator().getPlacements(registryEntryList.get(0)).getFirst(), ChunkPos.fromRegionCenter(0, 0), structures);
         stopwatch.stop();
         if (pair == null) {
             AdvancedLocate.LOGGER.info("Did not find anything.");
@@ -86,4 +106,6 @@ public class AdvancedLocateCommand {
         AdvancedLocate.LOGGER.info("Locating element " + entryString + " took " + timeTaken.toMillis() + " ms at " + text);
         return i;
     }
+
+
 }
