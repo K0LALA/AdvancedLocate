@@ -18,9 +18,6 @@
 		"main": [
 			"fr.kolala.AdvancedLocate"
 		],
-		"client": [
-			"fr.kolala.AdvancedLocateClient"
-		],
 		"fabric-datagen": [
 			"fr.kolala.AdvancedLocateDataGenerator"
 		]
