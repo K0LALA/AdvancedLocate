@@ -6,11 +6,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Pair;
 import fr.kolala.AdvancedLocate;
-import fr.kolala.mixin.ChunkGeneratorMixin;
 import fr.kolala.util.IChunkGeneratorCustomMethods;
 import net.minecraft.command.argument.RegistryPredicateArgumentType;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
@@ -21,14 +19,12 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.WorldView;
 import net.minecraft.world.gen.structure.Structure;
-import org.spongepowered.asm.mixin.Shadow;
 
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -48,20 +44,12 @@ public class AdvancedLocateCommand {
         return predicate.getKey().map(key -> structureRegistry.getEntry(key).map(RegistryEntryList::of), structureRegistry::getEntryList);
     }
 
-    private static Set<RegistryEntry<Structure>> getStructureSet(RegistryEntryList<Structure> structures) {
-        Set<RegistryEntry<Structure>> structureSet = new HashSet<>();
-        for (RegistryEntry<Structure> structure : structures) {
-            structureSet.add(structure);
-        }
-        return structureSet;
-    }
-
     private static int executeLocateStructure(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate) throws CommandSyntaxException {
         Set<Pair<BlockPos, RegistryEntry<Structure>>> structures = new HashSet<>();
-        // TODO: Adapt this method to handle the structureSet
+        // Adapt this method to handle the structureSet
         // Changing the used method to the one used by the locate command might be the solution, still using the same method to check for already found structures,
         // but needs to overwrite methods all the way down with mixins, which may be a lot,
-        // may be simpler with injects, maybe we can look for an inject on method call, but not sure
+        // may be simpler with injects, maybe we can look for an inject on method call,
         // we could counter this by injecting at first return and overwriting
         // the returned element based on the methods we want to call
 
@@ -70,15 +58,13 @@ public class AdvancedLocateCommand {
         BlockPos blockPos = BlockPos.ofFloored(source.getPosition());
         ServerWorld serverWorld = source.getWorld();
         Stopwatch stopwatch = Stopwatch.createStarted(Util.TICKER);
-        Pair<BlockPos, RegistryEntry<Structure>> pair = ((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(getStructureSet(registryEntryList), serverWorld, serverWorld.getStructureAccessor(), false, serverWorld.getChunkManager().getStructurePlacementCalculator().getPlacements(registryEntryList.get(0)).getFirst(), ChunkPos.fromRegionCenter(0, 0), structures);
+        Pair<BlockPos, RegistryEntry<Structure>> pair = ((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(serverWorld, registryEntryList, blockPos, 100, false, structures);
         stopwatch.stop();
         if (pair == null) {
             AdvancedLocate.LOGGER.info("Did not find anything.");
             throw STRUCTURE_NOT_FOUND_EXCEPTION.create(predicate.asString());
         }
-        AdvancedLocate.LOGGER.info("Found something :");
-        AdvancedLocate.LOGGER.info(pair.getFirst().toString());
-        AdvancedLocate.LOGGER.info(pair.getSecond().toString());
+        structures.clear();
         return sendCoordinates(source, predicate, blockPos, pair, "command.locate.structure.success", false, stopwatch.elapsed());
     }
 
@@ -102,7 +88,10 @@ public class AdvancedLocateCommand {
         int i = includeY ? MathHelper.floor(MathHelper.sqrt((float)currentPos.getSquaredDistance(blockPos))) : MathHelper.floor(getDistance(currentPos.getX(), currentPos.getZ(), blockPos.getX(), blockPos.getZ()));
         String string = includeY ? String.valueOf(blockPos.getY()) : "~";
         MutableText text = Texts.bracketed(Text.translatable("chat.coordinates", blockPos.getX(), string, blockPos.getZ())).styled(style -> style.withColor(Formatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + blockPos.getX() + " " + string + " " + blockPos.getZ())).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("chat.coordinates.tooltip"))));
-        source.sendFeedback(() -> Text.translatable("commands.locate.structure.success", entryString, text, i), false);
+        if (Objects.equals(successMessage, "command.locate.structure.success"))
+            source.sendFeedback(() -> Text.translatable("commands.locate.structure.success", entryString, text, i), false);
+        else
+            source.sendError(Text.of("Something went wrong." + successMessage));
         AdvancedLocate.LOGGER.info("Locating element " + entryString + " took " + timeTaken.toMillis() + " ms at " + text);
         return i;
     }
