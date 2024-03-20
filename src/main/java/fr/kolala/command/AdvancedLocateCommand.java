@@ -64,8 +64,7 @@ public class AdvancedLocateCommand {
             AdvancedLocate.LOGGER.info("Did not find anything.");
             throw STRUCTURE_NOT_FOUND_EXCEPTION.create(predicate.asString());
         }
-        structures.clear();
-        return sendCoordinates(source, predicate, blockPos, pair, "command.locate.structure.success", false, stopwatch.elapsed());
+        return sendCoordinates(source, predicate, blockPos, pair, "command.locate.structure.success", true, stopwatch.elapsed());
     }
 
     private static String getKeyString(Pair<BlockPos, ? extends RegistryEntry<?>> result) {

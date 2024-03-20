@@ -1,7 +1,6 @@
 package fr.kolala.mixin;
 
 import com.mojang.datafixers.util.Pair;
-import fr.kolala.AdvancedLocate;
 import fr.kolala.util.IChunkGeneratorCustomMethods;
 import fr.kolala.util.IChunkGeneratorInvoker;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -33,28 +32,6 @@ import java.util.Set;
 
 @Mixin(ChunkGenerator.class)
 public abstract class ChunkGeneratorMixin implements IChunkGeneratorInvoker, IChunkGeneratorCustomMethods {
-
-    /* Override / Invoke methods:
-    * locateConcentricRings
-    *   locateStructure
-    *       I-checkNotReferenced
-    * locateRandomSpreadStructures
-    *   locateStructure
-    */
-
-    /**
-     * Tries to find the closest structure of a given type near a given block.
-     * <p>
-     * New chunks will only be generated up to the {@link net.minecraft.world.chunk.ChunkStatus#STRUCTURE_STARTS} phase by this method.
-     * <p>
-     * The radius is ignored for strongholds.
-     *
-     * @return {@code null} if no structure could be found within the given search radius
-     *
-     * @param radius the search radius in chunks around the chunk the given block position is in; a radius of 0 will only search in the given chunk
-     * @param skipReferencedStructures whether to exclude structures that were previously located (has positive {@link StructureStart})
-     * @param structureSet skipped if null, skip structures already in structureSet
-     */
     @Override
     public Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateStructure(ServerWorld world, RegistryEntryList<Structure> structures, BlockPos center, int radius, boolean skipReferencedStructures,
                                                                                        Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet) {
@@ -155,15 +132,14 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorInvoker, ICh
                                                                                    Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet) {
         for (RegistryEntry<Structure> registryEntry : structures) {
             StructurePresence structurePresence = structureAccessor.getStructurePresence(pos, registryEntry.value(), skipReferencedStructures);
-            if (structurePresence == StructurePresence.START_PRESENT) continue;
+            if (structurePresence == StructurePresence.START_NOT_PRESENT) continue;
             if (!skipReferencedStructures && structurePresence == StructurePresence.START_PRESENT) {
                 return Pair.of(placement.getLocatePos(pos), registryEntry);
             }
             Chunk chunk = world.getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS);
             StructureStart structureStart = structureAccessor.getStructureStart(ChunkSectionPos.from(chunk), registryEntry.value(), chunk);
             Pair<BlockPos, RegistryEntry<Structure>> pair = Pair.of(placement.getLocatePos(structureStart.getPos()), registryEntry);
-            AdvancedLocate.LOGGER.info(String.valueOf(!structureStart.hasChildren()));
-            if (structureStart == null || !structureStart.hasChildren() || structureSet.contains(pair)) continue;
+            if (structureStart == null || !structureStart.hasChildren() || skipReferencedStructures && !IChunkGeneratorInvoker.invokeCheckNotReferenced(structureAccessor, structureStart) /*structureSet.contains(pair)*/) continue;
             return pair;
         }
         return null;
