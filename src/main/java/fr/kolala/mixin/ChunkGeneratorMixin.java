@@ -133,13 +133,13 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorInvoker, ICh
         for (RegistryEntry<Structure> registryEntry : structures) {
             StructurePresence structurePresence = structureAccessor.getStructurePresence(pos, registryEntry.value(), skipReferencedStructures);
             if (structurePresence == StructurePresence.START_NOT_PRESENT) continue;
-            if (!skipReferencedStructures && structurePresence == StructurePresence.START_PRESENT) {
+            if (!skipReferencedStructures && structurePresence == StructurePresence.START_PRESENT && !structureSet.contains(Pair.of(placement.getLocatePos(pos), registryEntry))) {
                 return Pair.of(placement.getLocatePos(pos), registryEntry);
             }
             Chunk chunk = world.getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS);
             StructureStart structureStart = structureAccessor.getStructureStart(ChunkSectionPos.from(chunk), registryEntry.value(), chunk);
             Pair<BlockPos, RegistryEntry<Structure>> pair = Pair.of(placement.getLocatePos(structureStart.getPos()), registryEntry);
-            if (structureStart == null || !structureStart.hasChildren() || skipReferencedStructures && !IChunkGeneratorInvoker.invokeCheckNotReferenced(structureAccessor, structureStart) /*structureSet.contains(pair)*/) continue;
+            if (structureStart == null || !structureStart.hasChildren() || skipReferencedStructures && !IChunkGeneratorInvoker.invokeCheckNotReferenced(structureAccessor, structureStart) || structureSet.contains(pair)) continue;
             return pair;
         }
         return null;

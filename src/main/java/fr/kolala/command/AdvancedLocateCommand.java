@@ -58,13 +58,22 @@ public class AdvancedLocateCommand {
         BlockPos blockPos = BlockPos.ofFloored(source.getPosition());
         ServerWorld serverWorld = source.getWorld();
         Stopwatch stopwatch = Stopwatch.createStarted(Util.TICKER);
-        Pair<BlockPos, RegistryEntry<Structure>> pair = ((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(serverWorld, registryEntryList, blockPos, 100, false, structures);
+        structures.add(((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(serverWorld, registryEntryList, blockPos, 100, false, structures));
+        structures.add(((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(serverWorld, registryEntryList, blockPos, 100, false, structures));
         stopwatch.stop();
-        if (pair == null) {
+        if (structures.isEmpty()) {
             AdvancedLocate.LOGGER.info("Did not find anything.");
             throw STRUCTURE_NOT_FOUND_EXCEPTION.create(predicate.asString());
         }
-        return sendCoordinates(source, predicate, blockPos, pair, "command.locate.structure.success", true, stopwatch.elapsed());
+        return sendCoordinatesForAll(source, predicate, blockPos, structures, stopwatch.elapsed());
+    }
+
+    private static int sendCoordinatesForAll(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<?> structure, BlockPos currentPos, Set<Pair<BlockPos, RegistryEntry<Structure>>> results, Duration timeTaken) {
+        int returns = 0;
+        for (Pair<BlockPos, RegistryEntry<Structure>> result : results) {
+            returns += sendCoordinates(source, structure, currentPos, result, "command.locate.structure.success", true, timeTaken);
+        }
+        return returns - results.size() + 1;
     }
 
     private static String getKeyString(Pair<BlockPos, ? extends RegistryEntry<?>> result) {
