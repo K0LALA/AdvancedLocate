@@ -24,6 +24,7 @@ import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.structure.Structure;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,10 +53,9 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorInvoker, ICh
         for (Map.Entry<StructurePlacement, Set<RegistryEntry<Structure>>> entry : map.entrySet()) {
             StructurePlacement structurePlacement2 = entry.getKey();
             if (structurePlacement2 instanceof ConcentricRingsStructurePlacement concentricRingsStructurePlacement) {
-                BlockPos blockPos;
                 double e;
                 Pair<BlockPos, RegistryEntry<Structure>> pair2 = advancedLocate$locateConcentricRingsStructure(entry.getValue(), world, structureAccessor, center, skipReferencedStructures, concentricRingsStructurePlacement, structureSet);
-                if (pair2 == null || !((e = center.getSquaredDistance(blockPos = pair2.getFirst())) < d)) continue;
+                if (pair2 == null || !((e = center.getSquaredDistance(pair2.getFirst())) < d)) continue;
                 d = e;
                 pair = pair2;
                 continue;
@@ -85,7 +85,7 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorInvoker, ICh
         return pair;
     }
 
-    @Override
+    @Unique
     public Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateConcentricRingsStructure(Set<RegistryEntry<Structure>> structures, ServerWorld world, StructureAccessor structureAccessor, BlockPos center, boolean skipReferencedStructures, ConcentricRingsStructurePlacement placement,
                                                                                                   Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet) {
         List<ChunkPos> list = world.getChunkManager().getStructurePlacementCalculator().getPlacementPositions(placement);
@@ -107,27 +107,24 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorInvoker, ICh
         return pair;
     }
 
-    @Override
+    @Unique
     public Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateRandomSpreadStructure(Set<RegistryEntry<Structure>> structures, WorldView world, StructureAccessor structureAccessor, int centerChunkX, int centerChunkZ, int radius, boolean skipReferencedStructures, long seed, RandomSpreadStructurePlacement placement,
                                                                                                Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet) {
         int i = placement.getSpacing();
         for (int j = -radius; j <= radius; j++) {
             boolean bl = j == -radius || j == radius;
             for (int k = -radius; k <= radius; k++) {
-                int m;
-                int l;
-                ChunkPos chunkPos;
                 Pair<BlockPos, RegistryEntry<Structure>> pair;
                 boolean bl2;
-                boolean bl3 = bl2 = k == -radius || k == radius;
-                if (!bl && !bl2 || (pair = advancedLocate$locateStructure(structures, world, structureAccessor, skipReferencedStructures, placement, chunkPos = placement.getStartChunk(seed, l = centerChunkX + i * j, m = centerChunkZ + i * k), structureSet)) == null) continue;
+                bl2 = k == -radius || k == radius;
+                if (!bl && !bl2 || (pair = advancedLocate$locateStructure(structures, world, structureAccessor, skipReferencedStructures, placement, placement.getStartChunk(seed, centerChunkX + i * j, centerChunkZ + i * k), structureSet)) == null) continue;
                 return pair;
             }
         }
         return null;
     }
 
-    @Override
+    @Unique
     public Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateStructure(Set<RegistryEntry<Structure>> structures, WorldView world, StructureAccessor structureAccessor, boolean skipReferencedStructures, StructurePlacement placement, ChunkPos pos,
                                                                                    Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet) {
         for (RegistryEntry<Structure> registryEntry : structures) {
@@ -138,8 +135,8 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorInvoker, ICh
             }
             Chunk chunk = world.getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS);
             StructureStart structureStart = structureAccessor.getStructureStart(ChunkSectionPos.from(chunk), registryEntry.value(), chunk);
-            Pair<BlockPos, RegistryEntry<Structure>> pair = Pair.of(placement.getLocatePos(structureStart.getPos()), registryEntry);
-            if (structureStart == null || !structureStart.hasChildren() || skipReferencedStructures && !IChunkGeneratorInvoker.invokeCheckNotReferenced(structureAccessor, structureStart) || structureSet.contains(pair)) continue;
+            Pair<BlockPos, RegistryEntry<Structure>> pair;
+            if (structureStart == null || !structureStart.hasChildren() || skipReferencedStructures && !IChunkGeneratorInvoker.invokeCheckNotReferenced(structureAccessor, structureStart) || structureSet.contains(pair = Pair.of(placement.getLocatePos(structureStart.getPos()), registryEntry))) continue;
             return pair;
         }
         return null;
