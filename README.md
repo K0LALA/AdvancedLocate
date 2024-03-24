@@ -11,4 +11,4 @@ When searching for structures, you have the Y coordinates included.
 To use the commands, type /loc in the chat, or whatever you set in the configuration.
 
 * `/loc structure nearest [amount] [structure] (max_radius)`, max_radius default value being 10000.
-* `/loc structure radius [radius] [structure] (max_amount)`, max_amount being 10.
+* `/loc structure radius [radius] [structure] (max_amount)`, max_amount default value being 10.
