@@ -1,0 +1,4 @@
+{
+  "command.advanced_locate.structure.nearest": "%s nearest %s found in %s ms:",
+  "command.advanced_locate.structure.individual": "%s (%s blocks away)"
+}

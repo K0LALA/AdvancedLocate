@@ -3,12 +3,10 @@
 ## Features
 
 This mod aims to upgrade the Vanilla locate command by adding new functionalities.
-They cover the 3 sub-commands (POI, biome and structure) adding multiple search, radius search and a slime chunk finder as a POI.
-When searching for structures, you have the Y coordinates included.
+They cover the 3 sub-commands (POI, biome and structure) adding multiple search and a slime chunk finder as a POI.
 
 ## Usage
 
 To use the commands, type /loc in the chat, or whatever you set in the configuration.
 
-* `/loc structure nearest [amount] [structure] (max_radius)`, max_radius default value being 10000.
-* `/loc structure radius [radius] [structure] (max_amount)`, max_amount default value being 10.
+* `/loc structure nearest [amount] [structure] (max_radius)`, `amount` is the number of structures you want to be displayed, max being 10. `structure` is the structure you want to search for. Please note it may not be totally accurate due to the finding algorithm.
