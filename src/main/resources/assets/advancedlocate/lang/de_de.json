@@ -1,0 +1,4 @@
+{
+  "command.advanced_locate.structure.nearest": "%s %s in %s ms gefunden:",
+  "command.advanced_locate.structure.individual": "%s (%s Blocks entfernt)"
+}
