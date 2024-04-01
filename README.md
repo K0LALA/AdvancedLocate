@@ -9,4 +9,4 @@ They cover the 3 sub-commands (POI, biome and structure) adding multiple search 
 
 To use the commands, type /loc in the chat, or whatever you set in the configuration.
 
-* `/loc structure nearest [amount] [structure]`, `amount` is the number of structures you want to be displayed, max being 10. `structure` is the structure you want to search for. Please note it may not be totally accurate due to the finding algorithm.
+* `/loc structure nearest (amount) [structure]`, `amount` is the number of structures you want to be displayed, max being 10 and set to 5 by default. `structure` is the structure you want to search for. Please note it may not be totally accurate due to the finding algorithm.
