@@ -1,4 +1,11 @@
 {
   "command.advanced_locate.structure.nearest": "%s nearest %s found in %s ms:",
-  "command.advanced_locate.structure.individual": "%s (%s blocks away)"
+  "command.advanced_locate.structure.individual": "%s (%s blocks away).",
+
+  "command.advanced_locate.slime.yes": "The chunk %s %s is a Slime chunk.",
+  "command.advanced_locate.slime.nearest": "The nearest Slime chunk is at %s %s.",
+
+  "command.advanced_locate.slime.wrong_dimension": "You can't run this command in another dimension than the Overworld!",
+  "command.advanced_locate.slime.neighbour_greater": "neighbour_radius can't be greater than radius!",
+  "command.advanced_locate.slime.density": "The highest density point in radius of %s chunks, is at chunk %s %s with %s Slime chunks within a radius of %s."
 }
