@@ -7,5 +7,9 @@
 
   "command.advanced_locate.slime.wrong_dimension": "Sie können diesen Befehl in keiner anderen Dimension als der Oberwelt ausführen!",
   "command.advanced_locate.slime.neighbour_greater": "neighbour_radius kann radius nicht überlegen sein!",
-  "command.advanced_locate.slime.density": "Der Punkt mit der höchsten Dichte in einem Radius von %s Chunks liegt bei Brocken %s %s mit %s Schleimchunks innerhalb eines Radius von %s."
+  "command.advanced_locate.slime.density": "Der Punkt mit der höchsten Dichte in einem Radius von %s Chunks liegt bei Brocken %s %s mit %s Schleimchunks innerhalb eines Radius von %s.",
+
+  "command.advanced_locate.config.get": "Der Wert von %s ist %s.",
+  "command.advanced_locate.config.fail": "Der Wert von %s konnte nicht in %s geändert werden.",
+  "command.advanced_locate.config.success": "Der %s-Wert wurde erfolgreich in %s geändert."
 }

@@ -7,5 +7,9 @@
 
   "command.advanced_locate.slime.wrong_dimension": "Vous ne pouvez pas exécuter cette commande dans une autre dimension que l'Overworld!",
   "command.advanced_locate.slime.neighbour_greater": "neighbour_radius ne peut pas être supérieur à radius !",
-  "command.advanced_locate.slime.density": "Le point de densité le plus haut dans un rayon de %s chunks, est au chunk %s %s avec %s chunks à Slimes dans un rayon de %s autour."
+  "command.advanced_locate.slime.density": "Le point de densité le plus haut dans un rayon de %s chunks, est au chunk %s %s avec %s chunks à Slimes dans un rayon de %s autour.",
+
+  "command.advanced_locate.config.get": "La valeur de %s est %s.",
+  "command.advanced_locate.config.fail": "Impossible de changer la valeur de %s en %s.",
+  "command.advanced_locate.config.success": "La valeur de %s a bien été changée pour %s."
 }

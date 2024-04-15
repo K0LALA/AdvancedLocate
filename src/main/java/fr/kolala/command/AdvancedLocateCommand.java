@@ -7,6 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Pair;
 import fr.kolala.AdvancedLocate;
+import fr.kolala.config.ConfigHelper;
 import fr.kolala.util.IChunkGeneratorCustomMethods;
 import net.minecraft.command.argument.RegistryPredicateArgumentType;
 import net.minecraft.registry.Registry;
@@ -32,11 +33,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class AdvancedLocateCommand {
-    private static final int DEFAULT_AMOUNT = 5;
-    private static final int MAX_AMOUNT = 10;
-    private static final int MAX_DELAY = 15;
-    private static final int MAX_RADIUS = 50;
-    private static final int MAX_NEIGHBOUR_RADIUS = 5;
+    private static final int DEFAULT_AMOUNT = ConfigHelper.getInt("default_amount");
+    private static final int MAX_AMOUNT = ConfigHelper.getInt("max_amount");
+    private static final int MAX_DELAY = ConfigHelper.getInt("max_delay");
+    private static final int MAX_RADIUS = ConfigHelper.getInt("max_radius");
+    private static final int MAX_NEIGHBOUR_RADIUS = ConfigHelper.getInt("max_neighbour_radius");
     private static final DynamicCommandExceptionType STRUCTURE_NOT_FOUND_EXCEPTION = new DynamicCommandExceptionType(id -> Text.stringifiedTranslatable("commands.locate.structure.not_found", id));
     private static final DynamicCommandExceptionType STRUCTURE_INVALID_EXCEPTION = new DynamicCommandExceptionType(id -> Text.stringifiedTranslatable("commands.locate.structure.invalid", id));
 
