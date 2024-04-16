@@ -3,7 +3,7 @@
 ## Features
 
 This mod aims to upgrade the Vanilla locate command by adding new functionalities.
-They cover the 3 sub-commands (POI, biome and structure) adding multiple search and a slime chunk finder as a POI.
+It adds multiple structure finder and a slime chunk finder.
 Slime chunk locating system, which you can ise to locate the nearest slime chunk, or the point with the highest density of slime chunks around.
 
 ## Usage
