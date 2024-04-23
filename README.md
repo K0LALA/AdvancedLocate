@@ -8,7 +8,7 @@ Slime chunk locating system, which you can ise to locate the nearest slime chunk
 
 ## Usage
 
-* `/loc (amount) [structure]`, `amount` is the number of structures you want to be displayed, max being 10 and set to 5 by default. `structure` is the structure you want to search for. Please note it may not be totally accurate due to the finding algorithm.
+* `/loc structure nearest (amount) [structure]`, `amount` is the number of structures you want to be displayed, max being 10 and set to 5 by default. `structure` is the structure you want to search for. Please note it may not be totally accurate due to the finding algorithm.
 
 * `/slime nearest`, locates the nearest slime chunk.
 
