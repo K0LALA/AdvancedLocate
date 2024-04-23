@@ -44,13 +44,11 @@ public class AdvancedLocateCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(CommandManager.literal("loc").requires(source -> source.hasPermissionLevel(2))
-                .then(CommandManager.literal("structure")
-                        .then(CommandManager.literal("nearest")
-                                .then(CommandManager.argument("amount", IntegerArgumentType.integer(1, MAX_AMOUNT))
-                                        .then(CommandManager.argument("structure", RegistryPredicateArgumentType.registryPredicate(RegistryKeys.STRUCTURE))
-                                                .executes(context -> executeLocateNearestStructure(context.getSource(), RegistryPredicateArgumentType.getPredicate(context, "structure", RegistryKeys.STRUCTURE, STRUCTURE_INVALID_EXCEPTION), IntegerArgumentType.getInteger(context, "amount")))))
+                        .then(CommandManager.argument("amount", IntegerArgumentType.integer(1, MAX_AMOUNT))
                                 .then(CommandManager.argument("structure", RegistryPredicateArgumentType.registryPredicate(RegistryKeys.STRUCTURE))
-                                        .executes(context -> executeLocateNearestStructure(context.getSource(), RegistryPredicateArgumentType.getPredicate(context, "structure", RegistryKeys.STRUCTURE, STRUCTURE_INVALID_EXCEPTION), DEFAULT_AMOUNT))))));
+                                        .executes(context -> executeLocateNearestStructure(context.getSource(), RegistryPredicateArgumentType.getPredicate(context, "structure", RegistryKeys.STRUCTURE, STRUCTURE_INVALID_EXCEPTION), IntegerArgumentType.getInteger(context, "amount")))))
+                        .then(CommandManager.argument("structure", RegistryPredicateArgumentType.registryPredicate(RegistryKeys.STRUCTURE))
+                                .executes(context -> executeLocateNearestStructure(context.getSource(), RegistryPredicateArgumentType.getPredicate(context, "structure", RegistryKeys.STRUCTURE, STRUCTURE_INVALID_EXCEPTION), DEFAULT_AMOUNT))));
         dispatcher.register(CommandManager.literal("slime").requires(source -> source.hasPermissionLevel(2))
                 .then(CommandManager.literal("nearest")
                         .executes(context -> executeLocateNearestSlimeChunk(context.getSource())))
@@ -86,7 +84,7 @@ public class AdvancedLocateCommand {
     private static int sendCoordinatesForAllNearest(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<?> structure, BlockPos currentPos, Set<Pair<BlockPos, RegistryEntry<Structure>>> results, Duration timeTaken) {
         int returns = 0;
         String string = structure.getKey().map(key -> key.getValue().toString(), key -> "#" + key.id() + " (" + getKeyString(results.iterator().next()) + ")");
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.structure.nearest", results.size(), string, timeTaken.toMillis()), false);
+        source.sendFeedback(() -> Text.literal(String.format("%d nearest %s found in %d ms:", results.size(), string, timeTaken.toMillis())), false);
         for (Pair<BlockPos, RegistryEntry<Structure>> result : results) {
             returns += sendCoordinates(source, currentPos, result);
         }
@@ -107,7 +105,7 @@ public class AdvancedLocateCommand {
         BlockPos blockPos = result.getFirst();
         int i = MathHelper.floor(getDistance(currentPos.getX(), currentPos.getZ(), blockPos.getX(), blockPos.getZ()));
         MutableText text = Texts.bracketed(Text.translatable("chat.coordinates", blockPos.getX(), "~", blockPos.getZ())).styled(style -> style.withColor(Formatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + blockPos.getX() + " " + "~" + " " + blockPos.getZ())).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("chat.coordinates.tooltip"))));
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.structure.individual", text, i), false);
+        source.sendFeedback(() -> text.append(Text.literal(String.format(" (%d blocks away).", i)).styled(style -> style.withColor(Formatting.WHITE))), false);
         return i;
     }
 
@@ -122,7 +120,7 @@ public class AdvancedLocateCommand {
     }
 
     private static void locatedSlimeChunk (ServerCommandSource source, int xPos, int zPos) {
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.nearest", xPos, zPos), false);
+        source.sendFeedback(() -> Text.literal(String.format("The nearest Slime chunk is at %d %d.", xPos, zPos)), false);
     }
 
     private static int executeLocateNearestSlimeChunk(ServerCommandSource source) {
@@ -132,7 +130,7 @@ public class AdvancedLocateCommand {
             return 1;
         }
         if (source.getPlayer().getServerWorld().getDimensionKey() != DimensionTypes.OVERWORLD) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
+            source.sendFeedback(() -> Text.literal("You can't run this command in another dimension than the Overworld!").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
         int xPos = source.getPlayer().getChunkPos().x;
@@ -141,7 +139,7 @@ public class AdvancedLocateCommand {
         if (isSlimeChunk(seed, xPos, zPos)) {
             int finalXPos = xPos;
             int finalZPos = zPos;
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.yes", finalXPos, finalZPos), false);
+            source.sendFeedback(() -> Text.literal(String.format("The chunk %d %d is a Slime chunk.", finalXPos, finalZPos)), false);
             return 0;
         }
 
@@ -174,11 +172,11 @@ public class AdvancedLocateCommand {
             return 1;
         }
         if (source.getPlayer().getServerWorld().getDimensionKey() != DimensionTypes.OVERWORLD) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
+            source.sendFeedback(() -> Text.literal("You can't run this command in another dimension than the Overworld!").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
         if (neighbour_radius > radius) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.neighbour_greater").styled(style -> style.withColor(Formatting.RED)), false);
+            source.sendFeedback(() -> Text.literal("neighbour_radius can't be greater than radius!").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
 
@@ -216,9 +214,9 @@ public class AdvancedLocateCommand {
         }
 
         Pair<Integer, Pair<Integer, Integer>> finalHighestDensityPoint = highestDensityPoint;
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.density", radius,
+        source.sendFeedback(() -> Text.literal(String.format("The highest density point in radius of %d chunks, is at chunk %d %d with %d Slime chunks within a radius of %d.", radius,
                 finalHighestDensityPoint.getSecond().getFirst(), finalHighestDensityPoint.getSecond().getSecond(),
-                finalHighestDensityPoint.getFirst(), neighbour_radius), false);
+                finalHighestDensityPoint.getFirst(), neighbour_radius)), false);
 
         return 0;
     }

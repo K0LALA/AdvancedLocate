@@ -17,6 +17,9 @@
 	"entrypoints": {
 		"main": [
 			"fr.kolala.AdvancedLocate"
+		],
+		"server": [
+			"fr.kolala.AdvancedLocateServer"
 		]
 	},
 	"mixins": [
