@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 public class ConfigHelper {
 
@@ -19,7 +20,7 @@ public class ConfigHelper {
         return new File(new File(MinecraftClient.getInstance().runDirectory, "config"), AdvancedLocate.MOD_ID + ".json");
     }
 
-    public static void createConfigFileIfNotExisting() {
+    public static boolean createConfigFileIfNotExisting() {
         // Create the file
         try {
             if (getConfigFile().createNewFile()) {
@@ -28,7 +29,7 @@ public class ConfigHelper {
         }
         catch (IOException e) {
             AdvancedLocate.LOGGER.error("Couldn't create config file.");
-            return;
+            return false;
         }
 
         // Write default content into the file
@@ -38,14 +39,17 @@ public class ConfigHelper {
         defaultContent.addProperty("max_delay", 15);
         defaultContent.addProperty("max_radius", 50);
         defaultContent.addProperty("max_neighbour_radius", 5);
-        write(defaultContent);
+        return write(defaultContent);
     }
 
     public static @Nullable JsonObject read() {
         File configFile = getConfigFile();
 
         if (!configFile.exists()) {
-            createConfigFileIfNotExisting();
+            if (!createConfigFileIfNotExisting()) {
+                AdvancedLocate.LOGGER.error("Couldn't create config file.");
+                return null;
+            }
         }
 
         if (configFile.isFile() && configFile.canRead()) {
@@ -53,7 +57,7 @@ public class ConfigHelper {
                 return JsonParser.parseReader(inputStreamReader).getAsJsonObject();
             }
             catch (Exception e) {
-                AdvancedLocate.LOGGER.error("Couldn't load config file.");
+                AdvancedLocate.LOGGER.error("Failed to parse the JSON file '{}'", configFile.getAbsolutePath(), e);
                 return null;
             }
         }
@@ -64,7 +68,7 @@ public class ConfigHelper {
         return null;
     }
 
-    public static void write(JsonObject json) {
+    public static boolean write(JsonObject json) {
         File configFile = getConfigFile();
 
         if (!configFile.exists()) {
@@ -72,16 +76,34 @@ public class ConfigHelper {
         }
         if (!configFile.isFile() || !configFile.canWrite()) {
             AdvancedLocate.LOGGER.error("Config file is not writable.");
-            return;
+            return false;
         }
 
-        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8)) {
-            outputStreamWriter.write(new GsonBuilder().setPrettyPrinting().create().toJson(json));
-        }
-        catch (Exception e) {
-            AdvancedLocate.LOGGER.error("Couldn't write file.");
+        File fileTmp = new File(configFile.getParentFile(), configFile.getName() + ".tmp");
+
+        if (fileTmp.exists())
+        {
+            fileTmp = new File(configFile.getParentFile(), UUID.randomUUID() + ".tmp");
         }
 
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(fileTmp), StandardCharsets.UTF_8))
+        {
+            writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(json));
+            writer.close();
+
+            if (configFile.exists() && configFile.isFile() && !configFile.delete())
+            {
+                AdvancedLocate.LOGGER.warn("Failed to delete file '{}'", configFile.getAbsolutePath());
+            }
+
+            return fileTmp.renameTo(configFile);
+        }
+        catch (Exception e)
+        {
+            AdvancedLocate.LOGGER.warn("Failed to write JSON data to file '{}'", fileTmp.getAbsolutePath(), e);
+        }
+
+        return false;
     }
 
 

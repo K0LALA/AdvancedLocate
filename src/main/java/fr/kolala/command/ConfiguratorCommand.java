@@ -40,10 +40,21 @@ public class ConfiguratorCommand {
         }
 
         json.addProperty(field, value);
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.config.success", field, value), false);
+        if (ConfigHelper.write(json)) {
+            source.sendFeedback(() -> Text.translatable("command.advanced_locate.config.success", field, value), false);
+            AdvancedLocate.LOGGER.info("Successfully changed config file.");
 
-        AdvancedLocate.LOGGER.info("Successfully changed config file.");
-        return 0;
+            // Reload structure commands
+            AdvancedLocate.registerCommands();
+
+            return 0;
+        }
+        else {
+            source.sendFeedback(() -> Text.translatable("command.advanced_locate.config.fail", field, value), false);
+            AdvancedLocate.LOGGER.info("Couldn't change config.");
+
+            return 1;
+        }
     }
 
 }

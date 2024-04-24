@@ -14,9 +14,12 @@ public class AdvancedLocate implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		registerCommands();
+	}
+
+	public static void registerCommands() {
+		LOGGER.info("Registering commands.");
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> AdvancedLocateCommand.register(dispatcher));
 		CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> ConfiguratorCommand.register(dispatcher)));
 	}
-
-
 }
