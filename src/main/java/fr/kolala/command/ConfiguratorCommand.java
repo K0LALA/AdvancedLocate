@@ -7,12 +7,14 @@ import fr.kolala.AdvancedLocate;
 import fr.kolala.config.ConfigHelper;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 public class ConfiguratorCommand {
 
     public static void register (CommandDispatcher<ServerCommandSource> dispatcher) {
-        ConfigHelper.createConfigFileIfNotExisting();
+        if (!ConfigHelper.doesConfigFileExists())
+            ConfigHelper.createConfigFileIfNotExisting();
 
         for (String field : ConfigHelper.listFields()) {
             dispatcher.register(CommandManager.literal("advancedlocate").requires(source -> source.hasPermissionLevel(2)).then(CommandManager.literal("config")
@@ -46,6 +48,9 @@ public class ConfiguratorCommand {
 
             // Reload structure commands
             AdvancedLocate.registerCommands();
+            // Send command tree back to all the players
+            for (ServerPlayerEntity player : source.getServer().getPlayerManager().getPlayerList())
+                source.getServer().getCommandManager().sendCommandTree(player);
 
             return 0;
         }

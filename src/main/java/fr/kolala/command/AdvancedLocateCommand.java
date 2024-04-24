@@ -33,30 +33,42 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class AdvancedLocateCommand {
-    private static final int DEFAULT_AMOUNT = ConfigHelper.getInt("default_amount");
-    private static final int MAX_AMOUNT = ConfigHelper.getInt("max_amount");
-    private static final int MAX_DELAY = ConfigHelper.getInt("max_delay");
-    private static final int MAX_RADIUS = ConfigHelper.getInt("max_radius");
-    private static final int MAX_NEIGHBOUR_RADIUS = ConfigHelper.getInt("max_neighbour_radius");
+    private static int defaultAmount;
+    private static int maxAmount;
+    private static int maxDelay;
+    private static int maxRadius;
+    private static int maxNeighbourRadius;
     private static final DynamicCommandExceptionType STRUCTURE_NOT_FOUND_EXCEPTION = new DynamicCommandExceptionType(id -> Text.stringifiedTranslatable("commands.locate.structure.not_found", id));
     private static final DynamicCommandExceptionType STRUCTURE_INVALID_EXCEPTION = new DynamicCommandExceptionType(id -> Text.stringifiedTranslatable("commands.locate.structure.invalid", id));
 
 
+    private static void updateConfigValues () {
+        defaultAmount = ConfigHelper.getInt("default_amount");
+        maxAmount = ConfigHelper.getInt("max_amount");
+        maxDelay = ConfigHelper.getInt("max_delay");
+        maxRadius = ConfigHelper.getInt("max_radius");
+        maxNeighbourRadius = ConfigHelper.getInt("max_neighbour_radius");
+    }
+
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+        updateConfigValues();
+
+        AdvancedLocate.LOGGER.info("default_amount is updated to " + defaultAmount);
+
         dispatcher.register(CommandManager.literal("loc").requires(source -> source.hasPermissionLevel(2))
                 .then(CommandManager.literal("structure")
                         .then(CommandManager.literal("nearest")
-                                .then(CommandManager.argument("amount", IntegerArgumentType.integer(1, MAX_AMOUNT))
+                                .then(CommandManager.argument("amount", IntegerArgumentType.integer(1, maxAmount))
                                         .then(CommandManager.argument("structure", RegistryPredicateArgumentType.registryPredicate(RegistryKeys.STRUCTURE))
                                                 .executes(context -> executeLocateNearestStructure(context.getSource(), RegistryPredicateArgumentType.getPredicate(context, "structure", RegistryKeys.STRUCTURE, STRUCTURE_INVALID_EXCEPTION), IntegerArgumentType.getInteger(context, "amount")))))
                                 .then(CommandManager.argument("structure", RegistryPredicateArgumentType.registryPredicate(RegistryKeys.STRUCTURE))
-                                        .executes(context -> executeLocateNearestStructure(context.getSource(), RegistryPredicateArgumentType.getPredicate(context, "structure", RegistryKeys.STRUCTURE, STRUCTURE_INVALID_EXCEPTION), DEFAULT_AMOUNT))))));
+                                        .executes(context -> executeLocateNearestStructure(context.getSource(), RegistryPredicateArgumentType.getPredicate(context, "structure", RegistryKeys.STRUCTURE, STRUCTURE_INVALID_EXCEPTION), defaultAmount))))));
         dispatcher.register(CommandManager.literal("slime").requires(source -> source.hasPermissionLevel(2))
                 .then(CommandManager.literal("nearest")
                         .executes(context -> executeLocateNearestSlimeChunk(context.getSource())))
                 .then(CommandManager.literal("density")
-                        .then(CommandManager.argument("radius", IntegerArgumentType.integer(2, MAX_RADIUS))
-                                .then(CommandManager.argument("neighbour_radius", IntegerArgumentType.integer(1, MAX_NEIGHBOUR_RADIUS))
+                        .then(CommandManager.argument("radius", IntegerArgumentType.integer(2, maxRadius))
+                                .then(CommandManager.argument("neighbour_radius", IntegerArgumentType.integer(1, maxNeighbourRadius))
                                         .executes(context -> executeLocateHighestSlimeDensity(context.getSource(), IntegerArgumentType.getInteger(context, "radius"), IntegerArgumentType.getInteger(context, "neighbour_radius")))))));
     }
 
@@ -72,7 +84,7 @@ public class AdvancedLocateCommand {
         ServerWorld serverWorld = source.getWorld();
         Stopwatch stopwatch = Stopwatch.createStarted(Util.TICKER);
         for (int i = 0; i < amount; i++) {
-            if (stopwatch.elapsed(TimeUnit.SECONDS) >= MAX_DELAY)
+            if (stopwatch.elapsed(TimeUnit.SECONDS) >= maxDelay)
                 break;
             structures.add(((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(serverWorld, registryEntryList, blockPos, 100, false, structures));
         }

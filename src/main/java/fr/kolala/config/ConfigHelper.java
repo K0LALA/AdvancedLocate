@@ -20,6 +20,10 @@ public class ConfigHelper {
         return new File(new File(MinecraftClient.getInstance().runDirectory, "config"), AdvancedLocate.MOD_ID + ".json");
     }
 
+    public static boolean doesConfigFileExists() {
+        return getConfigFile().exists();
+    }
+
     public static boolean createConfigFileIfNotExisting() {
         // Create the file
         try {
@@ -45,38 +49,32 @@ public class ConfigHelper {
     public static @Nullable JsonObject read() {
         File configFile = getConfigFile();
 
-        if (!configFile.exists()) {
+        if (!configFile.exists() || !configFile.isFile() || !configFile.canRead()) {
+            AdvancedLocate.LOGGER.error("Config file is not readable, Creating a new one.");
             if (!createConfigFileIfNotExisting()) {
                 AdvancedLocate.LOGGER.error("Couldn't create config file.");
                 return null;
             }
         }
 
-        if (configFile.isFile() && configFile.canRead()) {
-            try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8)) {
-                return JsonParser.parseReader(inputStreamReader).getAsJsonObject();
-            }
-            catch (Exception e) {
-                AdvancedLocate.LOGGER.error("Failed to parse the JSON file '{}'", configFile.getAbsolutePath(), e);
-                return null;
-            }
+        try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8)) {
+            return JsonParser.parseReader(inputStreamReader).getAsJsonObject();
         }
-        else {
-            AdvancedLocate.LOGGER.error("Config file is not readable.");
+        catch (Exception e) {
+            AdvancedLocate.LOGGER.error("Failed to parse the JSON file '{}'", configFile.getAbsolutePath(), e);
+            return null;
         }
-
-        return null;
     }
 
     public static boolean write(JsonObject json) {
         File configFile = getConfigFile();
 
-        if (!configFile.exists()) {
-            createConfigFileIfNotExisting();
-        }
-        if (!configFile.isFile() || !configFile.canWrite()) {
-            AdvancedLocate.LOGGER.error("Config file is not writable.");
-            return false;
+        if (!configFile.isFile() || !configFile.canWrite() || !configFile.exists()) {
+            AdvancedLocate.LOGGER.error("Config file is not writable, Creating a new one.");
+            if (!createConfigFileIfNotExisting()) {
+                AdvancedLocate.LOGGER.error("Couldn't create config file.");
+                return false;
+            }
         }
 
         File fileTmp = new File(configFile.getParentFile(), configFile.getName() + ".tmp");
