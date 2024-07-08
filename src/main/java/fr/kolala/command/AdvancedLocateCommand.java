@@ -53,6 +53,7 @@ public class AdvancedLocateCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         updateConfigValues();
 
+        // TODO: Fix value not getting updated, here the value is still 3 while the command set it to 5 :/
         AdvancedLocate.LOGGER.info("default_amount is updated to " + defaultAmount);
 
         dispatcher.register(CommandManager.literal("loc").requires(source -> source.hasPermissionLevel(2))
