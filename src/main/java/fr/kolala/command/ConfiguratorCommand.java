@@ -27,7 +27,7 @@ public class ConfiguratorCommand {
     }
 
     private static int getIntValue(ServerCommandSource source, String field) {
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.config.get", field, String.valueOf(ConfigHelper.getInt(field))), false);
+        source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.get", field, String.valueOf(ConfigHelper.getInt(field))), false);
 
         return 0;
     }
@@ -36,14 +36,14 @@ public class ConfiguratorCommand {
         JsonObject json = ConfigHelper.read();
 
         if (json == null) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.config.fail", field, value), false);
+            source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.fail", field, value), false);
             AdvancedLocate.LOGGER.error("Couldn't get json config.");
             return 1;
         }
 
         json.addProperty(field, value);
         if (ConfigHelper.write(json)) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.config.success", field, value), false);
+            source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.success", field, value), false);
             AdvancedLocate.LOGGER.info("Successfully changed config file.");
 
             // Reload structure commands
@@ -55,7 +55,7 @@ public class ConfiguratorCommand {
             return 0;
         }
         else {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.config.fail", field, value), false);
+            source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.fail", field, value), false);
             AdvancedLocate.LOGGER.info("Couldn't change config.");
 
             return 1;

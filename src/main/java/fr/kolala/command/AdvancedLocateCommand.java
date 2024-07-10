@@ -99,7 +99,7 @@ public class AdvancedLocateCommand {
     private static int sendCoordinatesForAllNearest(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<?> structure, BlockPos currentPos, Set<Pair<BlockPos, RegistryEntry<Structure>>> results, Duration timeTaken) {
         int returns = 0;
         String string = structure.getKey().map(key -> key.getValue().toString(), key -> "#" + key.id() + " (" + getKeyString(results.iterator().next()) + ")");
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.structure.nearest", results.size(), string, timeTaken.toMillis()), false);
+        source.sendFeedback(() -> Text.translatable("command.advancedlocate.structure.nearest", results.size(), string, timeTaken.toMillis()), false);
         for (Pair<BlockPos, RegistryEntry<Structure>> result : results) {
             returns += sendCoordinates(source, currentPos, result);
         }
@@ -120,7 +120,7 @@ public class AdvancedLocateCommand {
         BlockPos blockPos = result.getFirst();
         int i = MathHelper.floor(getDistance(currentPos.getX(), currentPos.getZ(), blockPos.getX(), blockPos.getZ()));
         MutableText text = Texts.bracketed(Text.translatable("chat.coordinates", blockPos.getX(), "~", blockPos.getZ())).styled(style -> style.withColor(Formatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + blockPos.getX() + " " + "~" + " " + blockPos.getZ())).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("chat.coordinates.tooltip"))));
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.structure.individual", text, i), false);
+        source.sendFeedback(() -> Text.translatable("command.advancedlocate.structure.individual", text, i), false);
         return i;
     }
 
@@ -135,7 +135,7 @@ public class AdvancedLocateCommand {
     }
 
     private static void locatedSlimeChunk (ServerCommandSource source, int xPos, int zPos) {
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.nearest", xPos, zPos), false);
+        source.sendFeedback(() -> Text.translatable("command.advancedlocate.slime.nearest", xPos, zPos), false);
     }
 
     private static int executeLocateNearestSlimeChunk(ServerCommandSource source) {
@@ -145,7 +145,7 @@ public class AdvancedLocateCommand {
             return 1;
         }
         if (source.getPlayer().getServerWorld().getDimensionKey() != DimensionTypes.OVERWORLD) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
+            source.sendFeedback(() -> Text.translatable("command.advancedlocate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
         int xPos = source.getPlayer().getChunkPos().x;
@@ -154,7 +154,7 @@ public class AdvancedLocateCommand {
         if (isSlimeChunk(seed, xPos, zPos)) {
             int finalXPos = xPos;
             int finalZPos = zPos;
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.yes", finalXPos, finalZPos), false);
+            source.sendFeedback(() -> Text.translatable("command.advancedlocate.slime.yes", finalXPos, finalZPos), false);
             return 0;
         }
 
@@ -187,11 +187,11 @@ public class AdvancedLocateCommand {
             return 1;
         }
         if (source.getPlayer().getServerWorld().getDimensionKey() != DimensionTypes.OVERWORLD) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
+            source.sendFeedback(() -> Text.translatable("command.advancedlocate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
         if (neighbour_radius > radius) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.neighbour_greater").styled(style -> style.withColor(Formatting.RED)), false);
+            source.sendFeedback(() -> Text.translatable("command.advancedlocate.slime.neighbour_greater").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
 
@@ -229,7 +229,7 @@ public class AdvancedLocateCommand {
         }
 
         Pair<Integer, Pair<Integer, Integer>> finalHighestDensityPoint = highestDensityPoint;
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.density", radius,
+        source.sendFeedback(() -> Text.translatable("command.advancedlocate.slime.density", radius,
                 finalHighestDensityPoint.getSecond().getFirst(), finalHighestDensityPoint.getSecond().getSecond(),
                 finalHighestDensityPoint.getFirst(), neighbour_radius), false);
 
