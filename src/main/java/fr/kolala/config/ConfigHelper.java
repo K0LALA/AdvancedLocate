@@ -14,6 +14,31 @@ import java.util.UUID;
 
 public class ConfigHelper {
 
+    public static final int DEFAULT_AMOUNT = 5;
+    public static final int MAX_AMOUNT = 10;
+    public static final int MAX_DELAY = 15;
+    public static final int MAX_RADIUS = 50;
+    public static final int MAX_NEIGHBOUR_RADIUS = 5;
+
+    public static int getDefaultValue(String field) {
+        if (Objects.equals(field, "default_amount")) return DEFAULT_AMOUNT;
+        else if (Objects.equals(field, "max_amount")) return MAX_AMOUNT;
+        else if (Objects.equals(field, "max_delay")) return MAX_DELAY;
+        else if (Objects.equals(field, "max_radius")) return MAX_RADIUS;
+        else if (Objects.equals(field, "max_neighbour_radius")) return MAX_NEIGHBOUR_RADIUS;
+        else return 10;
+    }
+
+    public static JsonObject getDefaultJson() {
+        JsonObject defaultContent = new JsonObject();
+        defaultContent.addProperty("default_amount", DEFAULT_AMOUNT);
+        defaultContent.addProperty("max_amount", MAX_AMOUNT);
+        defaultContent.addProperty("max_delay", MAX_DELAY);
+        defaultContent.addProperty("max_radius", MAX_RADIUS);
+        defaultContent.addProperty("max_neighbour_radius", MAX_NEIGHBOUR_RADIUS);
+        return defaultContent;
+    }
+
     // Files related methods
 
     private static File getConfigFile() {
@@ -33,13 +58,7 @@ public class ConfigHelper {
         }
 
         // Write default content into the file
-        JsonObject defaultContent = new JsonObject();
-        defaultContent.addProperty("default_amount", 5);
-        defaultContent.addProperty("max_amount", 10);
-        defaultContent.addProperty("max_delay", 15);
-        defaultContent.addProperty("max_radius", 50);
-        defaultContent.addProperty("max_neighbour_radius", 5);
-        return write(defaultContent);
+        return write(getDefaultJson());
     }
 
     public static @Nullable JsonObject read() {
@@ -47,7 +66,6 @@ public class ConfigHelper {
 
         if (!configFile.exists()) {
             if (!createConfigFileIfNotExisting()) {
-                AdvancedLocate.LOGGER.error("Couldn't create config file.");
                 return null;
             }
         }

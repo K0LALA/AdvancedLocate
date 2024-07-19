@@ -17,6 +17,9 @@
 	"entrypoints": {
 		"main": [
 			"fr.kolala.AdvancedLocate"
+		],
+		"modmenu": [
+			"fr.kolala.config.ModMenuImpl"
 		]
 	},
 	"mixins": [

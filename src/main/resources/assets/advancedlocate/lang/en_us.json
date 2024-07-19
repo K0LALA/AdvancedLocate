@@ -11,5 +11,20 @@
 
   "command.advanced_locate.config.get": "The value of %s is %s.",
   "command.advanced_locate.config.fail": "Couldn't change the value of %s to %s.",
-  "command.advanced_locate.config.success": "Successfully changed %s value to %s."
+  "command.advanced_locate.config.success": "Successfully changed %s value to %s.",
+
+
+  "title.advancedlocate.config": "Advanced Locate Config",
+
+  "option.advancedlocate.default_amount": "Default Amount",
+  "option.advancedlocate.max_amount": "Max Amount",
+  "option.advancedlocate.max_delay": "Max Delay",
+  "option.advancedlocate.max_radius": "Max Radius",
+  "option.advancedlocate.max_neighbour_radius": "Max Neighbour Radius",
+
+  "tooltip.advancedlocate.default_amount": "Default amount of structures to search for.",
+  "tooltip.advancedlocate.max_amount": "Maximum amount of structures to search for.",
+  "tooltip.advancedlocate.max_delay": "Maximum delay to search for structures before timeout.",
+  "tooltip.advancedlocate.max_radius": "Maximum radius in which we search for slime chunks.",
+  "tooltip.advancedlocate.max_neighbour_radius": "Max radius in which the density of slime chunks is calculated."
 }
