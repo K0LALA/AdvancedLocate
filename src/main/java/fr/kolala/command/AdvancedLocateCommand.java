@@ -33,13 +33,16 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class AdvancedLocateCommand {
-    private static final int DEFAULT_AMOUNT = ConfigHelper.getInt("default_amount");
     private static final int MAX_AMOUNT = ConfigHelper.getInt("max_amount");
     private static final int MAX_DELAY = ConfigHelper.getInt("max_delay");
     private static final int MAX_RADIUS = ConfigHelper.getInt("max_radius");
     private static final int MAX_NEIGHBOUR_RADIUS = ConfigHelper.getInt("max_neighbour_radius");
-    private static final DynamicCommandExceptionType STRUCTURE_NOT_FOUND_EXCEPTION = new DynamicCommandExceptionType(id -> Text.stringifiedTranslatable("commands.locate.structure.not_found", id));
-    private static final DynamicCommandExceptionType STRUCTURE_INVALID_EXCEPTION = new DynamicCommandExceptionType(id -> Text.stringifiedTranslatable("commands.locate.structure.invalid", id));
+    private static final DynamicCommandExceptionType STRUCTURE_NOT_FOUND_EXCEPTION = new DynamicCommandExceptionType(
+            id -> Text.translatable("commands.locate.structure.not_found", id)
+    );
+    private static final DynamicCommandExceptionType STRUCTURE_INVALID_EXCEPTION = new DynamicCommandExceptionType(
+            id -> Text.translatable("commands.locate.structure.invalid", id)
+    );
 
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
@@ -50,7 +53,7 @@ public class AdvancedLocateCommand {
                                         .then(CommandManager.argument("structure", RegistryPredicateArgumentType.registryPredicate(RegistryKeys.STRUCTURE))
                                                 .executes(context -> executeLocateNearestStructure(context.getSource(), RegistryPredicateArgumentType.getPredicate(context, "structure", RegistryKeys.STRUCTURE, STRUCTURE_INVALID_EXCEPTION), IntegerArgumentType.getInteger(context, "amount")))))
                                 .then(CommandManager.argument("structure", RegistryPredicateArgumentType.registryPredicate(RegistryKeys.STRUCTURE))
-                                        .executes(context -> executeLocateNearestStructure(context.getSource(), RegistryPredicateArgumentType.getPredicate(context, "structure", RegistryKeys.STRUCTURE, STRUCTURE_INVALID_EXCEPTION), DEFAULT_AMOUNT))))));
+                                        .executes(context -> executeLocateNearestStructureDefault(context.getSource(), RegistryPredicateArgumentType.getPredicate(context, "structure", RegistryKeys.STRUCTURE, STRUCTURE_INVALID_EXCEPTION)))))));
         dispatcher.register(CommandManager.literal("slime").requires(source -> source.hasPermissionLevel(2))
                 .then(CommandManager.literal("nearest")
                         .executes(context -> executeLocateNearestSlimeChunk(context.getSource())))
@@ -62,6 +65,10 @@ public class AdvancedLocateCommand {
 
     private static Optional<? extends RegistryEntryList.ListBacked<Structure>> getStructureListForPredicate(RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate, Registry<Structure> structureRegistry) {
         return predicate.getKey().map(key -> structureRegistry.getEntry(key).map(RegistryEntryList::of), structureRegistry::getEntryList);
+    }
+
+    private static int executeLocateNearestStructureDefault(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate) throws CommandSyntaxException {
+        return executeLocateNearestStructure(source, predicate, ConfigHelper.getInt("default_amount"));
     }
 
     private static int executeLocateNearestStructure(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate, int amount) throws CommandSyntaxException {
