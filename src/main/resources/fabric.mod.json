@@ -16,19 +16,19 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"fr.kolala.AdvancedLocate"
+			"fr.kolala.advancedlocate.AdvancedLocate"
 		],
 		"modmenu": [
-			"fr.kolala.config.ModMenuImpl"
+			"fr.kolala.advancedlocate.config.ModMenuImpl"
 		]
 	},
 	"mixins": [
 		"advancedlocate.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.15.11",
-		"minecraft": "~1.20.1",
-		"java": ">=17",
+		"fabricloader": ">=0.16.5",
+		"minecraft": ">=1.21.1",
+		"java": ">=21",
 		"fabric-api": "*"
 	}
 }

@@ -1,4 +1,4 @@
-package fr.kolala.util;
+package fr.kolala.advancedlocate.util;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.registry.entry.RegistryEntry;

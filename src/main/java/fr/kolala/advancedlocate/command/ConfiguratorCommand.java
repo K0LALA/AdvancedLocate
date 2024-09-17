@@ -1,10 +1,10 @@
-package fr.kolala.command;
+package fr.kolala.advancedlocate.command;
 
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import fr.kolala.AdvancedLocate;
-import fr.kolala.config.ConfigHelper;
+import fr.kolala.advancedlocate.AdvancedLocate;
+import fr.kolala.advancedlocate.config.ConfigHelper;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;

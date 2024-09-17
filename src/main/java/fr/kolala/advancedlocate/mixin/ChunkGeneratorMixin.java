@@ -1,8 +1,7 @@
-package fr.kolala.mixin;
+package fr.kolala.advancedlocate.mixin;
 
 import com.mojang.datafixers.util.Pair;
-import fr.kolala.util.IChunkGeneratorCustomMethods;
-import fr.kolala.util.IChunkGeneratorInvoker;
+import fr.kolala.advancedlocate.util.IChunkGeneratorCustomMethods;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -32,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Mixin(ChunkGenerator.class)
-public abstract class ChunkGeneratorMixin implements IChunkGeneratorInvoker, IChunkGeneratorCustomMethods {
+public abstract class ChunkGeneratorMixin implements IChunkGeneratorCustomMethods {
     @Override
     public Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateStructure(ServerWorld world, RegistryEntryList<Structure> structures, BlockPos center, int radius, boolean skipReferencedStructures,
                                                                                        Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet) {
@@ -128,7 +127,7 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorInvoker, ICh
     public Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateStructure(Set<RegistryEntry<Structure>> structures, WorldView world, StructureAccessor structureAccessor, boolean skipReferencedStructures, StructurePlacement placement, ChunkPos pos,
                                                                                    Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet) {
         for (RegistryEntry<Structure> registryEntry : structures) {
-            StructurePresence structurePresence = structureAccessor.getStructurePresence(pos, registryEntry.value(), skipReferencedStructures);
+            StructurePresence structurePresence = structureAccessor.getStructurePresence(pos, registryEntry.value(), placement, skipReferencedStructures);
             if (structurePresence == StructurePresence.START_NOT_PRESENT) continue;
             if (!skipReferencedStructures && structurePresence == StructurePresence.START_PRESENT && !structureSet.contains(Pair.of(placement.getLocatePos(pos), registryEntry))) {
                 return Pair.of(placement.getLocatePos(pos), registryEntry);
@@ -136,7 +135,7 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorInvoker, ICh
             Chunk chunk = world.getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS);
             StructureStart structureStart = structureAccessor.getStructureStart(ChunkSectionPos.from(chunk), registryEntry.value(), chunk);
             Pair<BlockPos, RegistryEntry<Structure>> pair;
-            if (structureStart == null || !structureStart.hasChildren() || skipReferencedStructures && !IChunkGeneratorInvoker.invokeCheckNotReferenced(structureAccessor, structureStart) || structureSet.contains(pair = Pair.of(placement.getLocatePos(structureStart.getPos()), registryEntry))) continue;
+            if (structureStart == null || !structureStart.hasChildren() || structureSet.contains(pair = Pair.of(placement.getLocatePos(structureStart.getPos()), registryEntry))) continue;
             return pair;
         }
         return null;

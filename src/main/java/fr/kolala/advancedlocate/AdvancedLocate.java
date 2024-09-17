@@ -1,7 +1,7 @@
-package fr.kolala;
+package fr.kolala.advancedlocate;
 
-import fr.kolala.command.AdvancedLocateCommand;
-import fr.kolala.command.ConfiguratorCommand;
+import fr.kolala.advancedlocate.command.AdvancedLocateCommand;
+import fr.kolala.advancedlocate.command.ConfiguratorCommand;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;

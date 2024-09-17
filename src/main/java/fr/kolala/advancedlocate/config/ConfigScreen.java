@@ -1,4 +1,4 @@
-package fr.kolala.config;
+package fr.kolala.advancedlocate.config;
 
 import com.google.gson.JsonObject;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;

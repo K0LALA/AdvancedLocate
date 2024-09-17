@@ -1,4 +1,4 @@
-package fr.kolala.command;
+package fr.kolala.advancedlocate.command;
 
 import com.google.common.base.Stopwatch;
 import com.mojang.brigadier.CommandDispatcher;
@@ -6,9 +6,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Pair;
-import fr.kolala.AdvancedLocate;
-import fr.kolala.config.ConfigHelper;
-import fr.kolala.util.IChunkGeneratorCustomMethods;
+import fr.kolala.advancedlocate.AdvancedLocate;
+import fr.kolala.advancedlocate.config.ConfigHelper;
+import fr.kolala.advancedlocate.util.IChunkGeneratorCustomMethods;
 import net.minecraft.command.argument.RegistryPredicateArgumentType;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
@@ -22,7 +22,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.dimension.DimensionTypes;
 import net.minecraft.world.gen.structure.Structure;
 
 import java.time.Duration;
@@ -138,10 +137,6 @@ public class AdvancedLocateCommand {
             AdvancedLocate.LOGGER.error("You can't run this command from the server!");
             return 1;
         }
-        if (source.getPlayer().getServerWorld().getDimensionKey() != DimensionTypes.OVERWORLD) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
-            return 1;
-        }
         int xPos = source.getPlayer().getChunkPos().x;
         int zPos = source.getPlayer().getChunkPos().z;
 
@@ -178,10 +173,6 @@ public class AdvancedLocateCommand {
         long seed = source.getWorld().getSeed();
         if (source.getPlayer() == null) {
             AdvancedLocate.LOGGER.error("You can't run this command from the server!");
-            return 1;
-        }
-        if (source.getPlayer().getServerWorld().getDimensionKey() != DimensionTypes.OVERWORLD) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
         if (neighbour_radius > radius) {
