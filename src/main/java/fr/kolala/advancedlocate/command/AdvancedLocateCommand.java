@@ -42,6 +42,9 @@ public class AdvancedLocateCommand {
     private static final DynamicCommandExceptionType STRUCTURE_INVALID_EXCEPTION = new DynamicCommandExceptionType(
             id -> Text.translatable("commands.locate.structure.invalid", id)
     );
+    private static void sideError() {
+        AdvancedLocate.LOGGER.error("You can't run this command from the server!");
+    }
 
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
@@ -134,7 +137,7 @@ public class AdvancedLocateCommand {
     private static int executeLocateNearestSlimeChunk(ServerCommandSource source) {
         long seed = source.getWorld().getSeed();
         if (source.getPlayer() == null) {
-            AdvancedLocate.LOGGER.error("You can't run this command from the server!");
+            sideError();
             return 1;
         }
         int xPos = source.getPlayer().getChunkPos().x;
@@ -172,7 +175,7 @@ public class AdvancedLocateCommand {
     private static int executeLocateHighestSlimeDensity(ServerCommandSource source, int radius, int neighbour_radius) {
         long seed = source.getWorld().getSeed();
         if (source.getPlayer() == null) {
-            AdvancedLocate.LOGGER.error("You can't run this command from the server!");
+            sideError();
             return 1;
         }
         if (neighbour_radius > radius) {

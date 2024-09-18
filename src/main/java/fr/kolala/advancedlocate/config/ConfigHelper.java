@@ -21,12 +21,14 @@ public class ConfigHelper {
     public static final int MAX_NEIGHBOUR_RADIUS = 5;
 
     public static int getDefaultValue(String field) {
-        if (Objects.equals(field, "default_amount")) return DEFAULT_AMOUNT;
-        else if (Objects.equals(field, "max_amount")) return MAX_AMOUNT;
-        else if (Objects.equals(field, "max_delay")) return MAX_DELAY;
-        else if (Objects.equals(field, "max_radius")) return MAX_RADIUS;
-        else if (Objects.equals(field, "max_neighbour_radius")) return MAX_NEIGHBOUR_RADIUS;
-        else return 10;
+        return switch (field) {
+            case "default_amount" -> DEFAULT_AMOUNT;
+            case "max_amount" -> MAX_AMOUNT;
+            case "max_delay" -> MAX_DELAY;
+            case "max_radius" -> MAX_RADIUS;
+            case "max_neighbour_radius" -> MAX_NEIGHBOUR_RADIUS;
+            case null, default -> 10;
+        };
     }
 
     public static JsonObject getDefaultJson() {
