@@ -18,6 +18,9 @@
 		"main": [
 			"fr.kolala.advancedlocate.AdvancedLocate"
 		],
+		"client": [
+			"fr.kolala.advancedlocate.client.AdvancedLocateClient"
+		],
 		"modmenu": [
 			"fr.kolala.advancedlocate.config.ModMenuImpl"
 		]
