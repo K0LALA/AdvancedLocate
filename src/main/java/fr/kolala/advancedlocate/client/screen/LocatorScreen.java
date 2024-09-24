@@ -8,7 +8,11 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.*;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.FilledMapItem;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -34,10 +38,9 @@ public class LocatorScreen extends Screen {
     protected void init() {
 
         searchField = new TextFieldWidget(textRenderer, baseX + 10, baseY + 10, this.width - 50, 20, Text.of("Search..."));
-        //baseX + width - 30, baseY + 10, 20, 20, ""
         filterButton = LegacyTexturedButtonWidget.legacyTexturedBuilder(Text.of(""), button -> {
-            // What to do on button press
-        })
+                    // TODO: Define what to do on button press
+                })
                 .position(baseX + width - 30, baseY + 10)
                 .size(20, 20)
                 .uv(0, 0, 20)
@@ -55,7 +58,38 @@ public class LocatorScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal(String.format("Player position: X%d;Z%d", player.getBlockX(), player.getBlockZ())), width / 2, height / 2, 0xffffff);
+        int playerX = player.getBlockX();
+        int playerZ = player.getBlockZ();
+        byte scale = 1;
+        //context.drawCenteredTextWithShadow(textRenderer, Text.literal(String.format("Player position: X%d;Z%d", player.getBlockX(), player.getBlockZ())), width / 2, height / 2, 0xffffff);
+        drawMap(context, playerX, playerZ, scale);
+    }
+
+    private void drawMap(DrawContext context, int xPos, int zPos, byte scale) {
+        assert client != null;
+
+        MatrixStack matrices = context.getMatrices();
+
+        matrices.push();
+        float offsetX = 50.0F;
+        float offsetY = 50.0F;
+        matrices.translate(offsetX, offsetY, 1.0F);
+        matrices.scale(scale, scale, -1);
+        MapIdComponent mapId = player.getInventory().getStack(0).get(DataComponentTypes.MAP_ID);
+
+        // To find id and state of map, it's needed to create a real map so we can access from it
+        client.gameRenderer.getMapRenderer()
+                .draw(
+                        matrices,
+                        context.getVertexConsumers(),
+                        mapId,
+                        FilledMapItem.getMapState(mapId, client.world),
+                        true,
+                        0xF000F0
+                );
+
+        context.draw();
+        matrices.pop();
     }
 
     @Override
