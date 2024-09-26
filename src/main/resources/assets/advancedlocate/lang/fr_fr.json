@@ -5,6 +5,7 @@
   "command.advanced_locate.slime.yes": "Le chunk %s %s est un chunk à Slimes.",
   "command.advanced_locate.slime.nearest": "Le chunk à Slimes le plus proche est le chunk %s %s.",
 
+  "command.advanced_locate.slime.wrong_dimension": "Vous ne pouvez pas exécuter cette commande dans une autre dimension que l'Overworld!",
   "command.advanced_locate.slime.neighbour_greater": "neighbour_radius ne peut pas être supérieur à radius !",
   "command.advanced_locate.slime.density": "Le point de densité le plus haut dans un rayon de %s chunks, est au chunk %s %s avec %s chunks à Slimes dans un rayon de %s autour.",
 

@@ -22,6 +22,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.Structure;
 
 import java.time.Duration;
@@ -140,6 +141,10 @@ public class AdvancedLocateCommand {
             sideError();
             return 1;
         }
+        if (!source.getPlayer().getServerWorld().getRegistryKey().equals(World.OVERWORLD)) {
+            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
+            return 1;
+        }
         int xPos = source.getPlayer().getChunkPos().x;
         int zPos = source.getPlayer().getChunkPos().z;
 
@@ -176,6 +181,10 @@ public class AdvancedLocateCommand {
         long seed = source.getWorld().getSeed();
         if (source.getPlayer() == null) {
             sideError();
+            return 1;
+        }
+        if (!source.getPlayer().getServerWorld().getRegistryKey().equals(World.OVERWORLD)) {
+            source.sendFeedback(() -> Text.translatable("command.advanced_locate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
         if (neighbour_radius > radius) {
