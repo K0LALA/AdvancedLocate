@@ -9,12 +9,19 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FilledMapItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.map.MapState;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 
 @Environment(EnvType.CLIENT)
 public class LocatorScreen extends Screen {
@@ -34,8 +41,27 @@ public class LocatorScreen extends Screen {
     private TextFieldWidget searchField;
     private ClickableWidget filterButton;
 
+    /**
+     * Returns the map id for the given location, creates the id if not existing
+     * @param world The current world
+     * @param x The center X of the map
+     * @param z The center Z of the map
+     * @param scale The scale of the map
+     * @return The id of the new map
+     */
+    private ItemStack getMapId(World world, int x, int z, byte scale) {
+        ItemStack map =  FilledMapItem.createMap(world, x, z, scale, false, false);
+        assert client != null;
+        MapState state = FilledMapItem.getMapState(map, client.world);
+        assert state != null;
+        state.update(player, map);
+        return map;
+    }
+
     @Override
     protected void init() {
+
+        assert client != null;
 
         searchField = new TextFieldWidget(textRenderer, baseX + 10, baseY + 10, this.width - 50, 20, Text.of("Search..."));
         filterButton = LegacyTexturedButtonWidget.legacyTexturedBuilder(Text.of(""), button -> {
@@ -60,7 +86,7 @@ public class LocatorScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
         int playerX = player.getBlockX();
         int playerZ = player.getBlockZ();
-        byte scale = 1;
+        byte scale = 0;
         //context.drawCenteredTextWithShadow(textRenderer, Text.literal(String.format("Player position: X%d;Z%d", player.getBlockX(), player.getBlockZ())), width / 2, height / 2, 0xffffff);
         drawMap(context, playerX, playerZ, scale);
     }
@@ -71,11 +97,13 @@ public class LocatorScreen extends Screen {
         MatrixStack matrices = context.getMatrices();
 
         matrices.push();
-        float offsetX = 50.0F;
+        float offsetX = 100.0F;
         float offsetY = 50.0F;
         matrices.translate(offsetX, offsetY, 1.0F);
         matrices.scale(scale, scale, -1);
-        MapIdComponent mapId = player.getInventory().getStack(0).get(DataComponentTypes.MAP_ID);
+        ItemStack map = getMapId(client.world, xPos, zPos, scale);
+        MapIdComponent mapId = map.get(DataComponentTypes.MAP_ID);
+
 
         // To find id and state of map, it's needed to create a real map so we can access from it
         client.gameRenderer.getMapRenderer()
@@ -83,7 +111,7 @@ public class LocatorScreen extends Screen {
                         matrices,
                         context.getVertexConsumers(),
                         mapId,
-                        FilledMapItem.getMapState(mapId, client.world),
+                        FilledMapItem.getMapState(map, client.world),
                         true,
                         0xF000F0
                 );
