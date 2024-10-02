@@ -3,6 +3,8 @@ package fr.kolala.advancedlocate.config;
 import com.google.gson.*;
 import fr.kolala.advancedlocate.AdvancedLocate;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -44,7 +46,7 @@ public class ConfigHelper {
     // Files related methods
 
     private static File getConfigFile() {
-        return new File(new File(MinecraftClient.getInstance().runDirectory, "config"), AdvancedLocate.MOD_ID + ".json");
+        return new File("config", AdvancedLocate.MOD_ID + ".json");
     }
 
     public static boolean createConfigFileIfNotExisting() {
