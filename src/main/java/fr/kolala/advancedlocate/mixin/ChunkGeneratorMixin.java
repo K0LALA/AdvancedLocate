@@ -41,21 +41,19 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorCustomMethod
         if (map.isEmpty()) {
             return null;
         }
-        Pair<BlockPos, RegistryEntry<Structure>> pair = null;
-        double minDistanceFound = Double.MAX_VALUE;
         StructureAccessor structureAccessor = world.getStructureAccessor();
         ArrayList<Map.Entry<StructurePlacement, Set<RegistryEntry<Structure>>>> list = new ArrayList<>(map.size());
         Set<Pair<BlockPos, RegistryEntry<Structure>>> pairSet1 = new HashSet<>();
         for (Map.Entry<StructurePlacement, Set<RegistryEntry<Structure>>> entry : map.entrySet()) {
             StructurePlacement structurePlacement2 = entry.getKey();
-            /*if (structurePlacement2 instanceof ConcentricRingsStructurePlacement concentricRingsStructurePlacement) {
-                double e;
-                pairSet1.addAll(advancedLocate$locateConcentricRingsStructure(entry.getValue(), world, structureAccessor, center, concentricRingsStructurePlacement, pairSet1, amount));
-                if (pair2 == null || !((e = center.getSquaredDistance(pair2.getFirst())) < d)) continue;
-                d = e;
-                //pair = pair2;
-                continue;
-            }*/
+            if (structurePlacement2 instanceof ConcentricRingsStructurePlacement concentricRingsStructurePlacement) {
+                Set<Pair<BlockPos, RegistryEntry<Structure>>> foundPairs = advancedLocate$locateConcentricRingsStructure(entry.getValue(), world, structureAccessor, concentricRingsStructurePlacement, pairSet1, amount);
+                if (foundPairs == null || foundPairs.isEmpty()) {
+                    continue;
+                }
+                pairSet1.addAll(foundPairs);
+                if (pairSet1.size() >= amount) return pairSet1;
+            }
             if (!(structurePlacement2 instanceof RandomSpreadStructurePlacement)) continue;
             list.add(entry);
         }
@@ -71,14 +69,6 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorCustomMethod
                         continue;
                     }
                     pairSet2.addAll(foundPairs);
-                    for (var pair_ : pairSet2) {
-                        if (pair_ == null) continue;
-                        double f = center.getSquaredDistance(pair_.getFirst());
-                        // Change Double.MAX_VALUE to the furthest structure found, if the current structure is closer, remove the further one, so we only have the closest one.
-                        // Will improve the accuracy of the locator
-                        if(!(f < Double.MAX_VALUE)) pairSet2.remove(pair_);
-                        minDistanceFound = f;
-                    }
                 }
                 if (pairSet2.size() >= amount) return pairSet2;
             }
@@ -87,7 +77,7 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorCustomMethod
     }
 
     @Unique
-    public Set<Pair<BlockPos, RegistryEntry<Structure>>> advancedLocate$locateConcentricRingsStructure(Set<RegistryEntry<Structure>> structures, ServerWorld world, StructureAccessor structureAccessor, BlockPos center, ConcentricRingsStructurePlacement placement,
+    public Set<Pair<BlockPos, RegistryEntry<Structure>>> advancedLocate$locateConcentricRingsStructure(Set<RegistryEntry<Structure>> structures, ServerWorld world, StructureAccessor structureAccessor, ConcentricRingsStructurePlacement placement,
                                                                                                   Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet, int amount) {
         Set<Pair<BlockPos, RegistryEntry<Structure>>> pairSet = new HashSet<>();
         List<ChunkPos> list = world.getChunkManager().getStructurePlacementCalculator().getPlacementPositions(placement);
@@ -119,10 +109,10 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorCustomMethod
                     pair = advancedLocate$locateStructure(structures, world, structureAccessor, placement, placement.getStartChunk(seed, centerChunkX + i * j, centerChunkZ + i * k), structureSet);
                     if (pair != null) {
                         pairSet.add(pair);
-                        if (pairSet.size() + structureSet.size() >= amount) return pairSet;
                     }
                 }
             }
+            if (pairSet.size() + structureSet.size() >= amount) return pairSet;
         }
         return pairSet.isEmpty() ? null : pairSet;
     }

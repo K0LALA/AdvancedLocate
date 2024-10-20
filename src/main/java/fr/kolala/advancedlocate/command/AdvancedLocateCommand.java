@@ -26,13 +26,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.Structure;
 
 import java.time.Duration;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class AdvancedLocateCommand {
     private static final int MAX_AMOUNT = ConfigHelper.getInt("max_amount");
-    private static final int MAX_DELAY = ConfigHelper.getInt("max_delay");
     private static final int MAX_RADIUS = ConfigHelper.getInt("max_radius");
     private static final int MAX_NEIGHBOUR_RADIUS = ConfigHelper.getInt("max_neighbour_radius");
     private static final DynamicCommandExceptionType STRUCTURE_NOT_FOUND_EXCEPTION = new DynamicCommandExceptionType(
@@ -81,15 +78,29 @@ public class AdvancedLocateCommand {
         Stopwatch stopwatch = Stopwatch.createStarted(Util.TICKER);
         structures = ((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(serverWorld, registryEntryList, blockPos, 100, amount);
         stopwatch.stop();
+        List<Pair<BlockPos, RegistryEntry<Structure>>> structureList = sortStructures(structures, blockPos, amount);
         if (structures == null || structures.isEmpty()) {
             throw STRUCTURE_NOT_FOUND_EXCEPTION.create(predicate.asString());
         }
-        return sendCoordinatesForAllNearest(source, predicate, blockPos, structures, stopwatch.elapsed());
+        return sendCoordinatesForAllNearest(source, predicate, blockPos, structureList, stopwatch.elapsed());
     }
 
-    private static int sendCoordinatesForAllNearest(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<?> structure, BlockPos currentPos, Set<Pair<BlockPos, RegistryEntry<Structure>>> results, Duration timeTaken) {
+    /**
+     * Sort the structures by distance and returns only the necessary amount
+     * @param structures The set of structure found
+     * @param center The position of the player to calculate the distance
+     * @param amount The amount of structures needed
+     * @return A list of structures sorted by distance and containing only the necessary amount
+     */
+    private static List<Pair<BlockPos, RegistryEntry<Structure>>> sortStructures(Set<Pair<BlockPos, RegistryEntry<Structure>>> structures, BlockPos center, int amount) {
+        List<Pair<BlockPos, RegistryEntry<Structure>>> structureList = new ArrayList<>(structures);
+        structureList.sort((o1, o2) -> (int) (o1.getFirst().getSquaredDistance(center) - o2.getFirst().getSquaredDistance(center)));
+        return structureList.subList(0, Math.min(structureList.size(), amount));
+    }
+
+    private static int sendCoordinatesForAllNearest(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<?> structure, BlockPos currentPos, List<Pair<BlockPos, RegistryEntry<Structure>>> results, Duration timeTaken) {
         int returns = 0;
-        String string = structure.getKey().map(key -> key.getValue().toString(), key -> "#" + key.id() + " (" + getKeyString(results.iterator().next()) + ")");
+        String string = structure.getKey().map(key -> key.getValue().toString(), key -> "#" + key.id() + " (" + getKeyString(results.getFirst()) + ")");
         source.sendFeedback(() -> Text.translatable("command.advanced_locate.structure.nearest", results.size(), string, timeTaken.toMillis()), false);
         for (Pair<BlockPos, RegistryEntry<Structure>> result : results) {
             returns += sendCoordinates(source, currentPos, result);

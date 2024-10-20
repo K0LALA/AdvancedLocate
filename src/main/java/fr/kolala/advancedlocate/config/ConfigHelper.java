@@ -2,9 +2,6 @@ package fr.kolala.advancedlocate.config;
 
 import com.google.gson.*;
 import fr.kolala.advancedlocate.AdvancedLocate;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -18,7 +15,6 @@ public class ConfigHelper {
 
     public static final int DEFAULT_AMOUNT = 5;
     public static final int MAX_AMOUNT = 10;
-    public static final int MAX_DELAY = 15;
     public static final int MAX_RADIUS = 50;
     public static final int MAX_NEIGHBOUR_RADIUS = 5;
 
@@ -26,7 +22,6 @@ public class ConfigHelper {
         return switch (field) {
             case "default_amount" -> DEFAULT_AMOUNT;
             case "max_amount" -> MAX_AMOUNT;
-            case "max_delay" -> MAX_DELAY;
             case "max_radius" -> MAX_RADIUS;
             case "max_neighbour_radius" -> MAX_NEIGHBOUR_RADIUS;
             case null, default -> 10;
@@ -37,7 +32,6 @@ public class ConfigHelper {
         JsonObject defaultContent = new JsonObject();
         defaultContent.addProperty("default_amount", DEFAULT_AMOUNT);
         defaultContent.addProperty("max_amount", MAX_AMOUNT);
-        defaultContent.addProperty("max_delay", MAX_DELAY);
         defaultContent.addProperty("max_radius", MAX_RADIUS);
         defaultContent.addProperty("max_neighbour_radius", MAX_NEIGHBOUR_RADIUS);
         return defaultContent;
