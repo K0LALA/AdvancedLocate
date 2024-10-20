@@ -13,7 +13,6 @@ import java.util.Set;
 public interface IChunkGeneratorCustomMethods {
 
     @Nullable
-    Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateStructure(ServerWorld world, RegistryEntryList<Structure> structures, BlockPos center, int radius, boolean skipReferencedStructures,
-                                                                            Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet);
+    Set<Pair<BlockPos, RegistryEntry<Structure>>> advancedLocate$locateStructure(ServerWorld world, RegistryEntryList<Structure> structures, BlockPos center, int radius, int amount);
 
 }

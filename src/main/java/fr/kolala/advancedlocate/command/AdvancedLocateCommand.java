@@ -26,11 +26,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.Structure;
 
 import java.time.Duration;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class AdvancedLocateCommand {
     private static final int MAX_AMOUNT = ConfigHelper.getInt("max_amount");
@@ -75,19 +73,15 @@ public class AdvancedLocateCommand {
     }
 
     private static int executeLocateNearestStructure(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate, int amount) throws CommandSyntaxException {
-        Set<Pair<BlockPos, RegistryEntry<Structure>>> structures = new HashSet<>();
+        Set<Pair<BlockPos, RegistryEntry<Structure>>> structures;
         Registry<Structure> registry = source.getWorld().getRegistryManager().get(RegistryKeys.STRUCTURE);
         RegistryEntryList<Structure> registryEntryList = getStructureListForPredicate(predicate, registry).orElseThrow(() -> STRUCTURE_INVALID_EXCEPTION.create(predicate.asString()));
         BlockPos blockPos = BlockPos.ofFloored(source.getPosition());
         ServerWorld serverWorld = source.getWorld();
         Stopwatch stopwatch = Stopwatch.createStarted(Util.TICKER);
-        for (int i = 0; i < amount; i++) {
-            if (stopwatch.elapsed(TimeUnit.SECONDS) >= MAX_DELAY)
-                break;
-            structures.add(((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(serverWorld, registryEntryList, blockPos, 100, false, structures));
-        }
+        structures = ((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(serverWorld, registryEntryList, blockPos, 100, amount);
         stopwatch.stop();
-        if (structures.isEmpty()) {
+        if (structures == null || structures.isEmpty()) {
             throw STRUCTURE_NOT_FOUND_EXCEPTION.create(predicate.asString());
         }
         return sendCoordinatesForAllNearest(source, predicate, blockPos, structures, stopwatch.elapsed());
