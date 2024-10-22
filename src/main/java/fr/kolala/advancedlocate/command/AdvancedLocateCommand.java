@@ -70,7 +70,7 @@ public class AdvancedLocateCommand {
     }
 
     private static int executeLocateNearestStructure(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate, int amount) throws CommandSyntaxException {
-        Set<Pair<BlockPos, RegistryEntry<Structure>>> structures;
+        List<Pair<BlockPos, RegistryEntry<Structure>>> structures;
         Registry<Structure> registry = source.getWorld().getRegistryManager().get(RegistryKeys.STRUCTURE);
         RegistryEntryList<Structure> registryEntryList = getStructureListForPredicate(predicate, registry).orElseThrow(() -> STRUCTURE_INVALID_EXCEPTION.create(predicate.asString()));
         BlockPos blockPos = BlockPos.ofFloored(source.getPosition());
@@ -78,10 +78,10 @@ public class AdvancedLocateCommand {
         Stopwatch stopwatch = Stopwatch.createStarted(Util.TICKER);
         structures = ((IChunkGeneratorCustomMethods) serverWorld.getChunkManager().getChunkGenerator()).advancedLocate$locateStructure(serverWorld, registryEntryList, blockPos, 100, amount);
         stopwatch.stop();
-        List<Pair<BlockPos, RegistryEntry<Structure>>> structureList = sortStructures(structures, blockPos, amount);
         if (structures == null || structures.isEmpty()) {
             throw STRUCTURE_NOT_FOUND_EXCEPTION.create(predicate.asString());
         }
+        List<Pair<BlockPos, RegistryEntry<Structure>>> structureList = sortStructures(structures, blockPos, amount);
         return sendCoordinatesForAllNearest(source, predicate, blockPos, structureList, stopwatch.elapsed());
     }
 
@@ -92,10 +92,9 @@ public class AdvancedLocateCommand {
      * @param amount The amount of structures needed
      * @return A list of structures sorted by distance and containing only the necessary amount
      */
-    private static List<Pair<BlockPos, RegistryEntry<Structure>>> sortStructures(Set<Pair<BlockPos, RegistryEntry<Structure>>> structures, BlockPos center, int amount) {
-        List<Pair<BlockPos, RegistryEntry<Structure>>> structureList = new ArrayList<>(structures);
-        structureList.sort((o1, o2) -> (int) (o1.getFirst().getSquaredDistance(center) - o2.getFirst().getSquaredDistance(center)));
-        return structureList.subList(0, Math.min(structureList.size(), amount));
+    private static List<Pair<BlockPos, RegistryEntry<Structure>>> sortStructures(List<Pair<BlockPos, RegistryEntry<Structure>>> structures, BlockPos center, int amount) {
+        structures.sort((o1, o2) -> (int) (o1.getFirst().getSquaredDistance(center) - o2.getFirst().getSquaredDistance(center)));
+        return structures.subList(0, Math.min(structures.size(), amount));
     }
 
     private static int sendCoordinatesForAllNearest(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<?> structure, BlockPos currentPos, List<Pair<BlockPos, RegistryEntry<Structure>>> results, Duration timeTaken) {
