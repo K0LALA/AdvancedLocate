@@ -81,20 +81,7 @@ public class AdvancedLocateCommand {
         if (structures == null || structures.isEmpty()) {
             throw STRUCTURE_NOT_FOUND_EXCEPTION.create(predicate.asString());
         }
-        List<Pair<BlockPos, RegistryEntry<Structure>>> structureList = sortStructures(structures, blockPos, amount);
-        return sendCoordinatesForAllNearest(source, predicate, blockPos, structureList, stopwatch.elapsed());
-    }
-
-    /**
-     * Sort the structures by distance and returns only the necessary amount
-     * @param structures The set of structure found
-     * @param center The position of the player to calculate the distance
-     * @param amount The amount of structures needed
-     * @return A list of structures sorted by distance and containing only the necessary amount
-     */
-    private static List<Pair<BlockPos, RegistryEntry<Structure>>> sortStructures(List<Pair<BlockPos, RegistryEntry<Structure>>> structures, BlockPos center, int amount) {
-        structures.sort((o1, o2) -> (int) (o1.getFirst().getSquaredDistance(center) - o2.getFirst().getSquaredDistance(center)));
-        return structures.subList(0, Math.min(structures.size(), amount));
+        return sendCoordinatesForAllNearest(source, predicate, blockPos, structures, stopwatch.elapsed());
     }
 
     private static int sendCoordinatesForAllNearest(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<?> structure, BlockPos currentPos, List<Pair<BlockPos, RegistryEntry<Structure>>> results, Duration timeTaken) {
