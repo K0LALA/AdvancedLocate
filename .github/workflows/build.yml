@@ -1,16 +1,5 @@
-name: Build and Publish
+name: Build
 on: [ push, pull_request, workflow_dispatch ]
-
-env:
-  MINECRAFT_VERSION: 1.21.1
-  JAVA_VERSION: 21
-  VERSION: 1.3.2+1.21.1
-  LOADERS: fabric
-  RELEASE_NAME: Advanced Locate
-  GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
-
-permissions:
-  contents: write
 
 jobs:
   build:
@@ -39,18 +28,3 @@ jobs:
         with:
           name: Artifacts
           path: build/libs/
-
-      - name: Publish (Github)
-        uses: Kir-Antipov/mc-publish@v3.3
-        with:
-          github-tag: "v${{env.VERSION}}"
-          github-token: "${{env.GITHUB_TOKEN}}"
-
-          name: "${{env.RELEASE_NAME}} ${{env.VERSION}}"
-          version: "${{env.VERSION}}"
-          version-type: release
-          changelog-file: CHANGELOG.md
-
-          loaders: "${{env.LOADERS}}"
-          game-versions: "${{env.MINECRAFT_VERSION}}"
-          java: "${{env.JAVA_VERSION}}"
