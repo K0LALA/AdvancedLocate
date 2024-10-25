@@ -1,5 +1,16 @@
-name: build
-on: [ push, pull_request ]
+name: Build and Publish
+on: [ push, pull_request, workflow_dispatch ]
+
+env:
+  MINECRAFT_VERSION: 1.21.1
+  JAVA_VERSION: 21
+  VERSION: 1.3.2+1.21.1
+  RELEASE_NAME: "Advanced Locate ${{VERSION}}"
+  MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -27,3 +38,21 @@ jobs:
         with:
           name: Artifacts
           path: build/libs/
+
+      - name: Publish (Github/Modrinth)
+        uses: Kir-Antipov/mc-publish@v3.2
+        with:
+          modrinth-id: xX0k30jj
+          modrinth-token: "${{env.MODRINTH_TOKEN}}"
+
+          github-tag: "v${{env.VERSION}}"
+          github-token: "${{env.GITHUB_TOKEN}}"
+
+          name: "${{env.RELEASE_NAME}}"
+          version: "${{env.VERSION}}"
+          version-type: release
+          changelog-file: CHANGELOG.md
+
+          loaders: fabric
+          game-versions: "${{env.MINECRAFT_VERSION}}"
+          java: "${{env.JAVA_VERSION}}"
