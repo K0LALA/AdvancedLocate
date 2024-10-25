@@ -8,7 +8,7 @@ env:
   LOADERS: fabric
   RELEASE_NAME: Advanced Locate
   MODRINTH_ID: xX0k30jj
-  MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+  MODRINTH_TOKEN: ${{ secrets.PUBLISH_MODRINTH_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
 
 permissions:
