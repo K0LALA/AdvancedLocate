@@ -24,7 +24,7 @@ public class ConfigScreen {
         for (String entry : ConfigHelper.listFields()) {
             general.addEntry(entryBuilder.startIntField(Text.translatable("option.advancedlocate." + entry), ConfigHelper.getInt(entry))
                     .setDefaultValue(ConfigHelper.getDefaultValue(entry))
-                    .setTooltip(Text.translatable("tooltip.advancedlocate." + "entry"))
+                    .setTooltip(Text.translatable("tooltip.advancedlocate." + entry))
                     .setSaveConsumer(newValue -> content.addProperty(entry, newValue))
                     .build());
         }

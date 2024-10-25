@@ -6,35 +6,78 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class ConfigHelper {
 
-    public static final int DEFAULT_AMOUNT = 5;
-    public static final int MAX_AMOUNT = 10;
-    public static final int MAX_RADIUS = 50;
-    public static final int MAX_NEIGHBOUR_RADIUS = 5;
+    public static final Map<String, Integer> defaultFieldValueMap = Map.of(
+            "default_amount", 5,
+            "max_amount", 10,
+            "default_max_distance", 1600,
+            "max_radius", 50,
+            "max_neighbour_radius", 5
+    );
 
     public static int getDefaultValue(String field) {
-        return switch (field) {
-            case "default_amount" -> DEFAULT_AMOUNT;
-            case "max_amount" -> MAX_AMOUNT;
-            case "max_radius" -> MAX_RADIUS;
-            case "max_neighbour_radius" -> MAX_NEIGHBOUR_RADIUS;
-            case null, default -> 10;
-        };
+        return defaultFieldValueMap.get(field);
     }
 
     public static JsonObject getDefaultJson() {
         JsonObject defaultContent = new JsonObject();
-        defaultContent.addProperty("default_amount", DEFAULT_AMOUNT);
-        defaultContent.addProperty("max_amount", MAX_AMOUNT);
-        defaultContent.addProperty("max_radius", MAX_RADIUS);
-        defaultContent.addProperty("max_neighbour_radius", MAX_NEIGHBOUR_RADIUS);
+        defaultFieldValueMap.forEach(defaultContent::addProperty);
         return defaultContent;
+    }
+
+    /**
+     * This method makes sure the config file is valid
+     * @return True if it managed to repair the file or if it was already repaired, False otherwise.
+     */
+    public static boolean checkConfigFileIntegrity() {
+        File configFile = getConfigFile();
+
+        if (!configFile.exists()) {
+            return createConfigFile();
+        }
+        JsonObject json = read();
+        if(!write(checkConfigFields(json)) || !write(checkConfigValueTypes(json))) {
+            AdvancedLocate.LOGGER.error("Could not fix the config file, the mod may not work properly.");
+            return false;
+        }
+
+        AdvancedLocate.LOGGER.info("Config file is valid.");
+        return true;
+    }
+
+    /**
+     * This method checks if all the fields are present in the config file
+     * @param json The JSON to check
+     * @return The fixed JSON
+     */
+    private static JsonObject checkConfigFields(JsonObject json) {
+        defaultFieldValueMap.forEach((key,value) -> {
+            if (!json.has(key)) {
+                json.addProperty(key, value);
+                AdvancedLocate.LOGGER.warn("Config file does not contain {} key, adding with default value.", key);
+            }
+        });
+        return json;
+    }
+
+    /**
+     * This method checks if all the fields in the config file have a value matching their types
+     * @param json The JSON to check
+     * @return The fixed JSON
+     */
+    private static JsonObject checkConfigValueTypes(JsonObject json) {
+        defaultFieldValueMap.forEach((key, value) -> {
+            try {
+                json.get(key).getAsInt();
+            } catch(NumberFormatException e) {
+                AdvancedLocate.LOGGER.warn("Config value for {} key is not a valid value, replacing by default value", key);
+                json.addProperty(key, value);
+            }
+        });
+        return json;
     }
 
     // Files related methods
@@ -43,7 +86,11 @@ public class ConfigHelper {
         return new File("config", AdvancedLocate.MOD_ID + ".json");
     }
 
-    public static boolean createConfigFileIfNotExisting() {
+    /**
+     * This creates a new config file at the default path. Note that if a file already exists, it will be overwritten
+     * @return True if it succeeded, False otherwise
+     */
+    public static boolean createConfigFile() {
         // Create the file
         try {
             if (getConfigFile().createNewFile()) {
@@ -63,7 +110,7 @@ public class ConfigHelper {
         File configFile = getConfigFile();
 
         if (!configFile.exists()) {
-            if (!createConfigFileIfNotExisting()) {
+            if (!createConfigFile()) {
                 return null;
             }
         }
@@ -84,11 +131,16 @@ public class ConfigHelper {
         return null;
     }
 
+    /**
+     * Writes JSON to the config file
+     * @param json The JSON to write
+     * @return True if it wrote successfully, False otherwise
+     */
     public static boolean write(JsonObject json) {
         File configFile = getConfigFile();
 
         if (!configFile.exists()) {
-            createConfigFileIfNotExisting();
+            createConfigFile();
         }
         if (!configFile.isFile() || !configFile.canWrite()) {
             AdvancedLocate.LOGGER.error("Config file is not writable.");

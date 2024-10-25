@@ -1,3 +1,5 @@
-* Provides more support when searching for multiple structure types at once
-* Fixed the locator not stopping when needed
-* Automated the publishing step (Github and Modrinth)
+* Can now specify a maximum distance when searching for nearest structures
+* Repairing config file if not valid
+* Updated translations
+* Actually shows tooltip in config screen
+* Updated Fabric API version
