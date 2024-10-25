@@ -40,7 +40,7 @@ jobs:
           path: build/libs/
 
       - name: Publish (Github/Modrinth)
-        uses: Kir-Antipov/mc-publish@v3.2
+        uses: Kir-Antipov/mc-publish@v3.3
         with:
           modrinth-id: xX0k30jj
           modrinth-token: "${{env.MODRINTH_TOKEN}}"
