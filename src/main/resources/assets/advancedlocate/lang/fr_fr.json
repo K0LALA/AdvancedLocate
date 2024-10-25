@@ -1,6 +1,6 @@
 {
   "command.advanced_locate.structure.nearest": "%s %s trouvés en %s ms:",
-  "command.advanced_locate.structure.individual": "%s (à %s blocs de distance).",
+  "command.advanced_locate.structure.individual": "%s (à %s blocs de distance)%s.",
 
   "command.advanced_locate.slime.yes": "Le chunk %s %s est un chunk à Slimes.",
   "command.advanced_locate.slime.nearest": "Le chunk à Slimes le plus proche est le chunk %s %s.",

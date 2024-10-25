@@ -81,15 +81,15 @@ public class AdvancedLocateCommand {
         if (structures == null || structures.isEmpty()) {
             throw STRUCTURE_NOT_FOUND_EXCEPTION.create(predicate.asString());
         }
-        return sendCoordinatesForAllNearest(source, predicate, blockPos, structures, stopwatch.elapsed());
+        return sendCoordinatesForAllNearest(source, predicate, blockPos, structures, stopwatch.elapsed(), registryEntryList.size() > 1);
     }
 
-    private static int sendCoordinatesForAllNearest(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<?> structure, BlockPos currentPos, List<Pair<BlockPos, RegistryEntry<Structure>>> results, Duration timeTaken) {
+    private static int sendCoordinatesForAllNearest(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<?> structure, BlockPos currentPos, List<Pair<BlockPos, RegistryEntry<Structure>>> results, Duration timeTaken, boolean tag) {
         int returns = 0;
-        String string = structure.getKey().map(key -> key.getValue().toString(), key -> "#" + key.id() + " (" + getKeyString(results.getFirst()) + ")");
+        String string = structure.getKey().map(key -> key.getValue().toString(), key -> "#" + key.id());
         source.sendFeedback(() -> Text.translatable("command.advanced_locate.structure.nearest", results.size(), string, timeTaken.toMillis()), false);
         for (Pair<BlockPos, RegistryEntry<Structure>> result : results) {
-            returns += sendCoordinates(source, currentPos, result);
+            returns += sendCoordinates(source, currentPos, result, tag);
         }
         return returns - results.size() + 1;
     }
@@ -104,11 +104,12 @@ public class AdvancedLocateCommand {
         return MathHelper.sqrt(i * i + j * j);
     }
 
-    private static int sendCoordinates(ServerCommandSource source, BlockPos currentPos, Pair<BlockPos, ? extends RegistryEntry<?>> result) {
+    private static int sendCoordinates(ServerCommandSource source, BlockPos currentPos, Pair<BlockPos, ? extends RegistryEntry<?>> result, boolean tag) {
         BlockPos blockPos = result.getFirst();
         int i = MathHelper.floor(getDistance(currentPos.getX(), currentPos.getZ(), blockPos.getX(), blockPos.getZ()));
         MutableText text = Texts.bracketed(Text.translatable("chat.coordinates", blockPos.getX(), "~", blockPos.getZ())).styled(style -> style.withColor(Formatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + blockPos.getX() + " " + "~" + " " + blockPos.getZ())).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("chat.coordinates.tooltip"))));
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.structure.individual", text, i), false);
+        String string = tag ? " (" + getKeyString(result) + ")" : "";
+        source.sendFeedback(() -> Text.translatable("command.advanced_locate.structure.individual", text, i, string), false);
         return i;
     }
 

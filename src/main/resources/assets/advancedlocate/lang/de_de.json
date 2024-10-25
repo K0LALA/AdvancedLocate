@@ -1,6 +1,6 @@
 {
   "command.advanced_locate.structure.nearest": "%s %s in %s ms gefunden:",
-  "command.advanced_locate.structure.individual": "%s (%s Blocks entfernt).",
+  "command.advanced_locate.structure.individual": "%s (%s Blocks entfernt)%s.",
 
   "command.advanced_locate.slime.yes": "Der chunk %s %s ist ein Schleimchunk.",
   "command.advanced_locate.slime.nearest": "Der nächste Schleimchunk ist bei %s %s.",

@@ -29,7 +29,6 @@ import java.util.*;
 
 @Mixin(ChunkGenerator.class)
 public abstract class ChunkGeneratorMixin implements IChunkGeneratorCustomMethods {
-    // TODO: Ajuster le locate our les tags de structures, car ne prends en compte que la première (affichage et peut-être locates)
     @Override
     public List<Pair<BlockPos, RegistryEntry<Structure>>> advancedLocate$locateStructure(ServerWorld world, RegistryEntryList<Structure> structures, BlockPos center, int radius, int amount) {
         StructurePlacementCalculator structurePlacementCalculator = world.getChunkManager().getStructurePlacementCalculator();
@@ -73,7 +72,10 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorCustomMethod
                     structureList.addAll(foundPairs);
                     sortStructureList(structureList, center);
                     structureList = shrinkStructureList(structureList, amount);
-                    if (structureList.size() >= amount) return structureList;
+                    if (structureList.size() >= amount) {
+                        if (list.size() > 1) continue;
+                        return structureList;
+                    }
                 }
             }
             return structureList;
