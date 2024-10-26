@@ -1,4 +1,4 @@
-package fr.kolala.util;
+package fr.kolala.advancedlocate.util;
 
 import net.minecraft.structure.StructureStart;
 import net.minecraft.world.gen.StructureAccessor;

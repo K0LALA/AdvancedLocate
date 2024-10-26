@@ -1,7 +1,7 @@
-package fr.kolala.config;
+package fr.kolala.advancedlocate.config;
 
 import com.google.gson.*;
-import fr.kolala.AdvancedLocate;
+import fr.kolala.advancedlocate.AdvancedLocate;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;

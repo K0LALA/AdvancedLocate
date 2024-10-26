@@ -1,4 +1,4 @@
-package fr.kolala.command;
+package fr.kolala.advancedlocate.command;
 
 import com.google.common.base.Stopwatch;
 import com.mojang.brigadier.CommandDispatcher;
@@ -6,9 +6,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Pair;
-import fr.kolala.AdvancedLocate;
-import fr.kolala.config.ConfigHelper;
-import fr.kolala.util.IChunkGeneratorCustomMethods;
+import fr.kolala.advancedlocate.AdvancedLocate;
+import fr.kolala.advancedlocate.config.ConfigHelper;
+import fr.kolala.advancedlocate.util.IChunkGeneratorCustomMethods;
 import net.minecraft.command.argument.RegistryPredicateArgumentType;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;

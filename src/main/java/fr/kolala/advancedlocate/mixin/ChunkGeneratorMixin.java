@@ -1,8 +1,8 @@
-package fr.kolala.mixin;
+package fr.kolala.advancedlocate.mixin;
 
 import com.mojang.datafixers.util.Pair;
-import fr.kolala.util.IChunkGeneratorCustomMethods;
-import fr.kolala.util.IChunkGeneratorInvoker;
+import fr.kolala.advancedlocate.util.IChunkGeneratorCustomMethods;
+import fr.kolala.advancedlocate.util.IChunkGeneratorInvoker;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.registry.entry.RegistryEntry;
