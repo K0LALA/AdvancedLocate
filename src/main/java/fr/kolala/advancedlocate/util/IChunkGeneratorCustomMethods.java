@@ -8,12 +8,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.structure.Structure;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Set;
+import java.util.List;
 
 public interface IChunkGeneratorCustomMethods {
 
     @Nullable
-    Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateStructure(ServerWorld world, RegistryEntryList<Structure> structures, BlockPos center, int radius, boolean skipReferencedStructures,
-                                                                            Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet);
+    List<Pair<BlockPos, RegistryEntry<Structure>>> advancedLocate$locateStructure(ServerWorld world, RegistryEntryList<Structure> structures, BlockPos center, int radius, int amount);
 
 }

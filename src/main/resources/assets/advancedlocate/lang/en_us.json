@@ -1,15 +1,34 @@
 {
-  "command.advanced_locate.structure.nearest": "%s nearest %s found in %s ms:",
-  "command.advanced_locate.structure.individual": "%s (%s blocks away).",
+  "command.advancedlocate.structure.nearest": "%s nearest %s found in %s ms:",
+  "command.advancedlocate.structure.individual": "%s (%s blocks away)%s.",
 
-  "command.advanced_locate.slime.yes": "The chunk %s %s is a Slime chunk.",
-  "command.advanced_locate.slime.nearest": "The nearest Slime chunk is at %s %s.",
+  "command.advancedlocate.structure.not_found": "Did not found a structure of type %s within %s blocks.",
 
-  "command.advanced_locate.slime.wrong_dimension": "You can't run this command in another dimension than the Overworld!",
-  "command.advanced_locate.slime.neighbour_greater": "neighbour_radius can't be greater than radius!",
-  "command.advanced_locate.slime.density": "The highest density point in radius of %s chunks, is at chunk %s %s with %s Slime chunks within a radius of %s.",
+  "argument.advancedlocate.structure.invalid_unit": "Invalid unit",
 
-  "command.advanced_locate.config.get": "The value of %s is %s.",
-  "command.advanced_locate.config.fail": "Couldn't change the value of %s to %s.",
-  "command.advanced_locate.config.success": "Successfully changed %s value to %s."
+  "command.advancedlocate.slime.yes": "The chunk %s %s is a Slime chunk.",
+  "command.advancedlocate.slime.nearest": "The nearest Slime chunk is at %s %s.",
+
+  "command.advancedlocate.slime.neighbour_greater": "neighbour_radius can't be greater than radius!",
+  "command.advancedlocate.slime.density": "The highest density point in radius of %s chunks, is at chunk %s %s with %s Slime chunks within a radius of %s.",
+  "command.advancedlocate.slime.wrong_dimension": "You can't run this command in another dimension than the Overworld!",
+
+  "command.advancedlocate.config.get": "The value of %s is %s.",
+  "command.advancedlocate.config.fail": "Couldn't change the value of %s to %s.",
+  "command.advancedlocate.config.success": "Successfully changed %s value to %s.",
+
+
+  "title.advancedlocate.config": "Advanced Locate Config",
+
+  "option.advancedlocate.default_amount": "Default Amount",
+  "option.advancedlocate.max_amount": "Max Amount",
+  "option.advancedlocate.default_max_distance": "Default Max Distance",
+  "option.advancedlocate.max_radius": "Max Radius",
+  "option.advancedlocate.max_neighbour_radius": "Max Neighbour Radius",
+
+  "tooltip.advancedlocate.default_amount": "Default amount of structures to search for.",
+  "tooltip.advancedlocate.max_amount": "Maximum amount of structures to search for.",
+  "tooltip.advancedlocate.default_max_distance": "Default maximum distance within structures are searched in.",
+  "tooltip.advancedlocate.max_radius": "Maximum radius in which we search for slime chunks.",
+  "tooltip.advancedlocate.max_neighbour_radius": "Max radius in which the density of slime chunks is calculated."
 }

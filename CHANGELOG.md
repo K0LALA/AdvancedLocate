@@ -1,14 +1,18 @@
-# 1.1.0
+# 1.4.1
 
-* Added `/slime nearest`, locating for the nearest Slime chunk, searching in a spiral pattern, in a radius of 2, happens very rarely but a Slime chunk can not be found within the radius.
-* Added `/slime density [radius] [neighour_radius]`, searching for the point with the highest density of Slime chunks around, useful for Slime farms
+* Fixed the mod reloading entirely when changing config
+* Fixed config not being changed correctly
+* Fixed default maximum distance not being used right when not specified in AdvancedLocateCommand.java
 
-# 1.0.1
+# 1.4.0
 
-* Changed icon.
-* Added default amount for searching structures, now `/loc structure nearest [structure]` is possible, searching for 5 structures, note you can still specify the amount of structures.
-* Added max delay for searching multiple structures, being 15 seconds, _I plan on adding this option in the configs_.
+* Can now specify a maximum distance when searching for nearest structures
+* Repairing config file if not valid
+* Updated translations
+* Actually shows tooltip in config screen
+* Updated dependencies
 
-# 1.0.0
+# 1.3.0
 
-* Search for multiple structures of the same type at once.
+* The locator is more efficient and accurate
+* Provides more support when searching for multiple types of structures at once

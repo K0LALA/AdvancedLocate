@@ -7,15 +7,11 @@ import fr.kolala.advancedlocate.AdvancedLocate;
 import fr.kolala.advancedlocate.config.ConfigHelper;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 public class ConfiguratorCommand {
 
     public static void register (CommandDispatcher<ServerCommandSource> dispatcher) {
-        if (!ConfigHelper.doesConfigFileExists())
-            ConfigHelper.createConfigFileIfNotExisting();
-
         for (String field : ConfigHelper.listFields()) {
             dispatcher.register(CommandManager.literal("advancedlocate").requires(source -> source.hasPermissionLevel(2)).then(CommandManager.literal("config")
                     .then(CommandManager.literal("get")
@@ -27,9 +23,9 @@ public class ConfiguratorCommand {
     }
 
     private static int getIntValue(ServerCommandSource source, String field) {
-        source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.get", field, String.valueOf(ConfigHelper.getInt(field))), false);
+        source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.get", field, ConfigHelper.getIntOrDefault(field)), false);
 
-        return 0;
+        return 1;
     }
 
     private static int setIntValue(ServerCommandSource source, String field, int value) {
@@ -38,7 +34,7 @@ public class ConfiguratorCommand {
         if (json == null) {
             source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.fail", field, value), false);
             AdvancedLocate.LOGGER.error("Couldn't get json config.");
-            return 1;
+            return 0;
         }
 
         json.addProperty(field, value);
@@ -48,17 +44,14 @@ public class ConfiguratorCommand {
 
             // Reload structure commands
             AdvancedLocate.registerCommands();
-            // Send command tree back to all the players
-            for (ServerPlayerEntity player : source.getServer().getPlayerManager().getPlayerList())
-                source.getServer().getCommandManager().sendCommandTree(player);
 
-            return 0;
+            return 1;
         }
         else {
             source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.fail", field, value), false);
             AdvancedLocate.LOGGER.info("Couldn't change config.");
 
-            return 1;
+            return 0;
         }
     }
 

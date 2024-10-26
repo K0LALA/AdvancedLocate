@@ -1,15 +1,15 @@
 {
-  "command.advanced_locate.structure.nearest": "%s %s in %s ms gefunden:",
-  "command.advanced_locate.structure.individual": "%s (%s Blocks entfernt).",
+  "command.advancedlocate.structure.nearest": "%s %s in %s ms gefunden:",
+  "command.advancedlocate.structure.individual": "%s (%s Blocks entfernt)%s.",
 
-  "command.advanced_locate.slime.yes": "Der chunk %s %s ist ein Schleimchunk.",
-  "command.advanced_locate.slime.nearest": "Der nächste Schleimchunk ist bei %s %s.",
+  "command.advancedlocate.slime.yes": "Der chunk %s %s ist ein Schleimchunk.",
+  "command.advancedlocate.slime.nearest": "Der nächste Schleimchunk ist bei %s %s.",
 
-  "command.advanced_locate.slime.wrong_dimension": "Sie können diesen Befehl in keiner anderen Dimension als der Oberwelt ausführen!",
-  "command.advanced_locate.slime.neighbour_greater": "neighbour_radius kann radius nicht überlegen sein!",
-  "command.advanced_locate.slime.density": "Der Punkt mit der höchsten Dichte in einem Radius von %s Chunks liegt bei Brocken %s %s mit %s Schleimchunks innerhalb eines Radius von %s.",
+  "command.advancedlocate.slime.neighbour_greater": "neighbour_radius kann radius nicht überlegen sein!",
+  "command.advancedlocate.slime.density": "Der Punkt mit der höchsten Dichte in einem Radius von %s Chunks liegt bei Brocken %s %s mit %s Schleimchunks innerhalb eines Radius von %s.",
+  "command.advancedlocate.slime.wrong_dimension": "Sie können diesen Befehl in keiner anderen Dimension als der Oberwelt ausführen!",
 
-  "command.advanced_locate.config.get": "Der Wert von %s ist %s.",
-  "command.advanced_locate.config.fail": "Der Wert von %s konnte nicht in %s geändert werden.",
-  "command.advanced_locate.config.success": "Der %s-Wert wurde erfolgreich in %s geändert."
+  "command.advancedlocate.config.get": "Der Wert von %s ist %s.",
+  "command.advancedlocate.config.fail": "Der Wert von %s konnte nicht in %s geändert werden.",
+  "command.advancedlocate.config.success": "Der %s-Wert wurde erfolgreich in %s geändert."
 }
