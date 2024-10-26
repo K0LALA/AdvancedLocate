@@ -1,5 +1,11 @@
 name: Build and Publish
-on: [ push, workflow_dispatch ]
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+  workflow_dispatch:
 
 env:
   MINECRAFT_VERSION: 1.21.1
