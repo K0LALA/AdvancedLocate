@@ -19,10 +19,6 @@ public class AdvancedLocate implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		registerCommands();
-	}
-
-	public static void registerCommands() {
 		LOGGER.info("Registering custom argument type.");
 		ArgumentTypeRegistry.registerArgumentType(Identifier.of(MOD_ID, "distance"),
 				DistanceArgumentType.class,
@@ -30,6 +26,11 @@ public class AdvancedLocate implements ModInitializer {
 		LOGGER.info("Checking config file integrity.");
 		if (!ConfigHelper.checkConfigFileIntegrity())
 			LOGGER.error("Config file is not valid! The mod may not work when trying to execute a command, be aware!");
+		registerCommands();
+	}
+
+	public static void registerCommands() {
+
 		LOGGER.info("Registering commands.");
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> AdvancedLocateCommand.register(dispatcher));
 		CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> ConfiguratorCommand.register(dispatcher)));

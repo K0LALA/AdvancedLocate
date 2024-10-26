@@ -1,10 +1,10 @@
 name: Build and Publish
-on: [ push, pull_request, workflow_dispatch ]
+on: [ push, workflow_dispatch ]
 
 env:
   MINECRAFT_VERSION: 1.21.1
   JAVA_VERSION: 21
-  VERSION: 1.4.0+1.21.1
+  VERSION: 1.4.1+1.21.1
   LOADERS: fabric
   RELEASE_NAME: Advanced Locate
   MODRINTH_ID: xX0k30jj

@@ -29,9 +29,9 @@ import java.time.Duration;
 import java.util.*;
 
 public class AdvancedLocateCommand {
-    private static final int MAX_AMOUNT = ConfigHelper.getInt("max_amount");
-    private static final int MAX_RADIUS = ConfigHelper.getInt("max_radius");
-    private static final int MAX_NEIGHBOUR_RADIUS = ConfigHelper.getInt("max_neighbour_radius");
+    private static final int MAX_AMOUNT = ConfigHelper.getIntOrDefault("max_amount");
+    private static final int MAX_RADIUS = ConfigHelper.getIntOrDefault("max_radius");
+    private static final int MAX_NEIGHBOUR_RADIUS = ConfigHelper.getIntOrDefault("max_neighbour_radius");
     private static final DynamicCommandExceptionType STRUCTURE_NOT_FOUND_EXCEPTION = new DynamicCommandExceptionType(
             id -> Text.translatable("commands.locate.structure.not_found", id)
     );
@@ -87,15 +87,15 @@ public class AdvancedLocateCommand {
     // STRUCTURE being the structure type(s) you want to search for,
     // max_distance being the maximum distance (in blocks) of the structures (default: 1600)
     private static int executeLocateNearestStructureDefault(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate) throws CommandSyntaxException {
-        return executeLocateNearestStructure(source, predicate, ConfigHelper.getInt("default_amount"), ConfigHelper.getInt("default_max_distance"));
+        return executeLocateNearestStructure(source, predicate, ConfigHelper.getIntOrDefault("default_amount"), ConfigHelper.getIntOrDefault("default_max_distance") / 16);
     }
 
     private static int executeLocateNearestStructureAmount(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate, int amount) throws CommandSyntaxException {
-        return executeLocateNearestStructure(source, predicate, amount, ConfigHelper.getInt("default_max_distance"));
+        return executeLocateNearestStructure(source, predicate, amount, ConfigHelper.getIntOrDefault("default_max_distance") / 16);
     }
 
     private static int executeLocateNearestStructureMaxDistance(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate, int maxDistance) throws CommandSyntaxException {
-        return executeLocateNearestStructure(source, predicate, ConfigHelper.getInt("default_amount"), maxDistance);
+        return executeLocateNearestStructure(source, predicate, ConfigHelper.getIntOrDefault("default_amount"), maxDistance);
     }
 
     private static int executeLocateNearestStructure(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate, int amount, int maxDistance) throws CommandSyntaxException {

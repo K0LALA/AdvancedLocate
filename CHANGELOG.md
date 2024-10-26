@@ -1,5 +1,3 @@
-* Can now specify a maximum distance when searching for nearest structures
-* Repairing config file if not valid
-* Updated translations
-* Actually shows tooltip in config screen
-* Updated Fabric API version
+* Fixed the mod reloading entirely when changing config
+* Fixed config not being changed correctly
+* Fixed default maximum distance not being used right when not specified in AdvancedLocateCommand.java

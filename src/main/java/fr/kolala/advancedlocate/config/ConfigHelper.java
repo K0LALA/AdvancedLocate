@@ -18,6 +18,10 @@ public class ConfigHelper {
             "max_neighbour_radius", 5
     );
 
+    public static Set<String> listFields() {
+        return defaultFieldValueMap.keySet();
+    }
+
     public static int getDefaultValue(String field) {
         return defaultFieldValueMap.get(field);
     }
@@ -177,8 +181,9 @@ public class ConfigHelper {
 
     // Config related methods
 
-    public static int getInt(String name) {
-        return Objects.requireNonNull(get(name)).getAsInt();
+    public static int getIntOrDefault(String name) {
+        JsonElement value = get(name);
+        return value == null ? defaultFieldValueMap.get(name) : value.getAsInt();
     }
 
     private static JsonElement get(String name) {
@@ -189,14 +194,4 @@ public class ConfigHelper {
         }
         return json.get(name);
     }
-
-    public static Set<String> listFields() {
-        JsonObject json = read();
-        if (json == null) {
-            AdvancedLocate.LOGGER.error("Couldn't list fields in json config!");
-            return new HashSet<>();
-        }
-        return json.keySet();
-    }
-
 }
