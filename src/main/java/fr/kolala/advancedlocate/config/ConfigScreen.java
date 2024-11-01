@@ -22,9 +22,9 @@ public class ConfigScreen {
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
         content = ConfigHelper.getDefaultJson();
         for (String entry : ConfigHelper.listFields()) {
-            general.addEntry(entryBuilder.startIntField(Text.translatable("option.advancedlocate." + entry), ConfigHelper.getInt(entry))
+            general.addEntry(entryBuilder.startIntField(Text.translatable("option.advancedlocate." + entry), ConfigHelper.getIntOrDefault(entry))
                     .setDefaultValue(ConfigHelper.getDefaultValue(entry))
-                    .setTooltip(Text.translatable("tooltip.advancedlocate." + "entry"))
+                    .setTooltip(Text.translatable("tooltip.advancedlocate." + entry))
                     .setSaveConsumer(newValue -> content.addProperty(entry, newValue))
                     .build());
         }

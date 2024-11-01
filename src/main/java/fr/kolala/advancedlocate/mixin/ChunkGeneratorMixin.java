@@ -25,16 +25,12 @@ import net.minecraft.world.gen.structure.Structure;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Mixin(ChunkGenerator.class)
 public abstract class ChunkGeneratorMixin implements IChunkGeneratorCustomMethods {
     @Override
-    public Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateStructure(ServerWorld world, RegistryEntryList<Structure> structures, BlockPos center, int radius, boolean skipReferencedStructures,
-                                                                                       Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet) {
+    public List<Pair<BlockPos, RegistryEntry<Structure>>> advancedLocate$locateStructure(ServerWorld world, RegistryEntryList<Structure> structures, BlockPos center, int radius, int amount) {
         StructurePlacementCalculator structurePlacementCalculator = world.getChunkManager().getStructurePlacementCalculator();
         Object2ObjectArrayMap<StructurePlacement, Set<RegistryEntry<Structure>>> map = new Object2ObjectArrayMap<>();
         for (RegistryEntry<Structure> registryEntry : structures) {
@@ -45,19 +41,20 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorCustomMethod
         if (map.isEmpty()) {
             return null;
         }
-        Pair<BlockPos, RegistryEntry<Structure>> pair = null;
-        double d = Double.MAX_VALUE;
         StructureAccessor structureAccessor = world.getStructureAccessor();
         ArrayList<Map.Entry<StructurePlacement, Set<RegistryEntry<Structure>>>> list = new ArrayList<>(map.size());
+        List<Pair<BlockPos, RegistryEntry<Structure>>> structureList = new ArrayList<>();
         for (Map.Entry<StructurePlacement, Set<RegistryEntry<Structure>>> entry : map.entrySet()) {
             StructurePlacement structurePlacement2 = entry.getKey();
             if (structurePlacement2 instanceof ConcentricRingsStructurePlacement concentricRingsStructurePlacement) {
-                double e;
-                Pair<BlockPos, RegistryEntry<Structure>> pair2 = advancedLocate$locateConcentricRingsStructure(entry.getValue(), world, structureAccessor, center, skipReferencedStructures, concentricRingsStructurePlacement, structureSet);
-                if (pair2 == null || !((e = center.getSquaredDistance(pair2.getFirst())) < d)) continue;
-                d = e;
-                pair = pair2;
-                continue;
+                List<Pair<BlockPos, RegistryEntry<Structure>>> foundPairs = advancedLocate$locateConcentricRingsStructure(entry.getValue(), world, structureAccessor, concentricRingsStructurePlacement);
+                if (foundPairs == null || foundPairs.isEmpty()) {
+                    continue;
+                }
+                structureList.addAll(foundPairs);
+                sortStructureList(structureList, center);
+                structureList = shrinkStructureList(structureList, amount);
+                return structureList;
             }
             if (!(structurePlacement2 instanceof RandomSpreadStructurePlacement)) continue;
             list.add(entry);
@@ -66,77 +63,101 @@ public abstract class ChunkGeneratorMixin implements IChunkGeneratorCustomMethod
             int i = ChunkSectionPos.getSectionCoord(center.getX());
             int j = ChunkSectionPos.getSectionCoord(center.getZ());
             for (int k = 0; k <= radius; ++k) {
-                boolean bl = false;
                 for (Map.Entry<StructurePlacement, Set<RegistryEntry<Structure>>> entry : list) {
                     RandomSpreadStructurePlacement randomSpreadStructurePlacement = (RandomSpreadStructurePlacement)entry.getKey();
-                    Pair<BlockPos, RegistryEntry<Structure>> pair3 = advancedLocate$locateRandomSpreadStructure(entry.getValue(), world, structureAccessor, i, j, k, skipReferencedStructures, structurePlacementCalculator.getStructureSeed(), randomSpreadStructurePlacement, structureSet);
-                    if (pair3 == null) continue;
-                    bl = true;
-                    double f = center.getSquaredDistance(pair3.getFirst());
-                    if (!(f < d)) continue;
-                    d = f;
-                    pair = pair3;
+                    List<Pair<BlockPos, RegistryEntry<Structure>>> foundPairs = advancedLocate$locateRandomSpreadStructure(entry.getValue(), world, structureAccessor, i, j, k, structurePlacementCalculator.getStructureSeed(), randomSpreadStructurePlacement, structureList, amount);
+                    if (foundPairs == null || foundPairs.isEmpty()) {
+                        continue;
+                    }
+                    structureList.addAll(foundPairs);
+                    sortStructureList(structureList, center);
+                    structureList = shrinkStructureList(structureList, amount);
+                    if (structureList.size() >= amount) {
+                        if (list.size() > 1) continue;
+                        return structureList;
+                    }
                 }
-                if (!bl) continue;
-                return pair;
             }
+            return structureList;
         }
-        return pair;
+        return null;
+    }
+
+    /**
+     * Sorts the structure list by distances to the player in ascending order
+     * @param structureList The list of structures to be sorted
+     * @param center The position of the player to calculate the distance
+     */
+    @Unique
+    private void sortStructureList(List<Pair<BlockPos, RegistryEntry<Structure>>> structureList, BlockPos center) {
+        structureList.sort((o1, o2) -> (int) (o1.getFirst().getSquaredDistance(center) - o2.getFirst().getSquaredDistance(center)));
+    }
+
+    /**
+     * Shrinks the structure list to be only of a maximum amount
+     * @param structureList The list of structures to shrink
+     * @param amount The maximum amount of elements in the list
+     * @return The list containing the amount (or less) of elements wanted
+     */
+    @Unique
+    List<Pair<BlockPos, RegistryEntry<Structure>>> shrinkStructureList(List<Pair<BlockPos, RegistryEntry<Structure>>> structureList, int amount) {
+        return structureList.subList(0, Math.min(structureList.size(), amount));
     }
 
     @Unique
-    public Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateConcentricRingsStructure(Set<RegistryEntry<Structure>> structures, ServerWorld world, StructureAccessor structureAccessor, BlockPos center, boolean skipReferencedStructures, ConcentricRingsStructurePlacement placement,
-                                                                                                  Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet) {
+    public List<Pair<BlockPos, RegistryEntry<Structure>>> advancedLocate$locateConcentricRingsStructure(Set<RegistryEntry<Structure>> structures, ServerWorld world, StructureAccessor structureAccessor, ConcentricRingsStructurePlacement placement) {
+        List<Pair<BlockPos, RegistryEntry<Structure>>> foundStructuresList = new ArrayList<>();
         List<ChunkPos> list = world.getChunkManager().getStructurePlacementCalculator().getPlacementPositions(placement);
         if (list == null) {
             throw new IllegalStateException("Somehow tried to find structures for a placement that doesn't exist");
         }
-        Pair<BlockPos, RegistryEntry<Structure>> pair = null;
-        double d = Double.MAX_VALUE;
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         for (ChunkPos chunkPos : list) {
             Pair<BlockPos, RegistryEntry<Structure>> pair2;
             mutable.set(ChunkSectionPos.getOffsetPos(chunkPos.x, 8), 32, ChunkSectionPos.getOffsetPos(chunkPos.z, 8));
-            double e = mutable.getSquaredDistance(center);
-            boolean bl = pair == null || e < d;
-            if (!bl || (pair2 = advancedLocate$locateStructure(structures, world, structureAccessor, skipReferencedStructures, placement, chunkPos, structureSet)) == null) continue;
-            pair = pair2;
-            d = e;
+            if ((pair2 = advancedLocate$locateStructure(structures, world, structureAccessor, placement, chunkPos)) == null) continue;
+            foundStructuresList.add(pair2);
         }
-        return pair;
+        return foundStructuresList.isEmpty() ? null : foundStructuresList;
     }
 
     @Unique
-    public Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateRandomSpreadStructure(Set<RegistryEntry<Structure>> structures, WorldView world, StructureAccessor structureAccessor, int centerChunkX, int centerChunkZ, int radius, boolean skipReferencedStructures, long seed, RandomSpreadStructurePlacement placement,
-                                                                                               Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet) {
+    public List<Pair<BlockPos, RegistryEntry<Structure>>> advancedLocate$locateRandomSpreadStructure(Set<RegistryEntry<Structure>> structures, WorldView world, StructureAccessor structureAccessor, int centerChunkX, int centerChunkZ, int radius, long seed, RandomSpreadStructurePlacement placement,
+                                                                                                     List<Pair<BlockPos, RegistryEntry<Structure>>> structureList, int amount) {
+        List<Pair<BlockPos, RegistryEntry<Structure>>> foundStructuresList = new ArrayList<>();
         int i = placement.getSpacing();
         for (int j = -radius; j <= radius; j++) {
             boolean bl = j == -radius || j == radius;
             for (int k = -radius; k <= radius; k++) {
                 Pair<BlockPos, RegistryEntry<Structure>> pair;
-                boolean bl2;
-                bl2 = k == -radius || k == radius;
-                if (!bl && !bl2 || (pair = advancedLocate$locateStructure(structures, world, structureAccessor, skipReferencedStructures, placement, placement.getStartChunk(seed, centerChunkX + i * j, centerChunkZ + i * k), structureSet)) == null) continue;
-                return pair;
+                boolean bl2 = k == -radius || k == radius;
+                if (bl || bl2) {
+                    pair = advancedLocate$locateStructure(structures, world, structureAccessor, placement, placement.getStartChunk(seed, centerChunkX + i * j, centerChunkZ + i * k));
+                    if (pair != null) {
+                        foundStructuresList.add(pair);
+                    }
+                }
             }
+            if (foundStructuresList.size() + structureList.size() >= amount) return foundStructuresList;
         }
-        return null;
+        return foundStructuresList.isEmpty() ? null : foundStructuresList;
     }
 
     @Unique
-    public Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateStructure(Set<RegistryEntry<Structure>> structures, WorldView world, StructureAccessor structureAccessor, boolean skipReferencedStructures, StructurePlacement placement, ChunkPos pos,
-                                                                                   Set<Pair<BlockPos, RegistryEntry<Structure>>> structureSet) {
+    public Pair<BlockPos, RegistryEntry<Structure>> advancedLocate$locateStructure(Set<RegistryEntry<Structure>> structures, WorldView world, StructureAccessor structureAccessor, StructurePlacement placement, ChunkPos pos) {
         for (RegistryEntry<Structure> registryEntry : structures) {
-            StructurePresence structurePresence = structureAccessor.getStructurePresence(pos, registryEntry.value(), placement, skipReferencedStructures);
-            if (structurePresence == StructurePresence.START_NOT_PRESENT) continue;
-            if (!skipReferencedStructures && structurePresence == StructurePresence.START_PRESENT && !structureSet.contains(Pair.of(placement.getLocatePos(pos), registryEntry))) {
-                return Pair.of(placement.getLocatePos(pos), registryEntry);
+            StructurePresence structurePresence = structureAccessor.getStructurePresence(pos, registryEntry.value(), placement, false);
+            if (structurePresence != StructurePresence.START_NOT_PRESENT) {
+                if (structurePresence == StructurePresence.START_PRESENT) {
+                    return Pair.of(placement.getLocatePos(pos), registryEntry);
+                }
+
+                Chunk chunk = world.getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS);
+                StructureStart structureStart = structureAccessor.getStructureStart(ChunkSectionPos.from(chunk), registryEntry.value(), chunk);
+                if (structureStart != null && structureStart.hasChildren()) {
+                    return Pair.of(placement.getLocatePos(structureStart.getPos()), registryEntry);
+                }
             }
-            Chunk chunk = world.getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS);
-            StructureStart structureStart = structureAccessor.getStructureStart(ChunkSectionPos.from(chunk), registryEntry.value(), chunk);
-            Pair<BlockPos, RegistryEntry<Structure>> pair;
-            if (structureStart == null || !structureStart.hasChildren() || structureSet.contains(pair = Pair.of(placement.getLocatePos(structureStart.getPos()), registryEntry))) continue;
-            return pair;
         }
         return null;
     }

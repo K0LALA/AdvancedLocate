@@ -12,8 +12,6 @@ import net.minecraft.text.Text;
 public class ConfiguratorCommand {
 
     public static void register (CommandDispatcher<ServerCommandSource> dispatcher) {
-        ConfigHelper.createConfigFileIfNotExisting();
-
         for (String field : ConfigHelper.listFields()) {
             dispatcher.register(CommandManager.literal("advancedlocate").requires(source -> source.hasPermissionLevel(2)).then(CommandManager.literal("config")
                     .then(CommandManager.literal("get")
@@ -25,35 +23,35 @@ public class ConfiguratorCommand {
     }
 
     private static int getIntValue(ServerCommandSource source, String field) {
-        source.sendFeedback(() -> Text.translatable("command.advanced_locate.config.get", field, String.valueOf(ConfigHelper.getInt(field))), false);
+        source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.get", field, String.valueOf(ConfigHelper.getIntOrDefault(field))), false);
 
-        return 0;
+        return 1;
     }
 
     private static int setIntValue(ServerCommandSource source, String field, int value) {
         JsonObject json = ConfigHelper.read();
 
         if (json == null) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.config.fail", field, value), false);
+            source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.fail", field, value), false);
             AdvancedLocate.LOGGER.error("Couldn't get json config.");
-            return 1;
+            return 0;
         }
 
         json.addProperty(field, value);
         if (ConfigHelper.write(json)) {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.config.success", field, value), false);
+            source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.success", field, value), false);
             AdvancedLocate.LOGGER.info("Successfully changed config file.");
 
             // Reload structure commands
             AdvancedLocate.registerCommands();
 
-            return 0;
+            return 1;
         }
         else {
-            source.sendFeedback(() -> Text.translatable("command.advanced_locate.config.fail", field, value), false);
+            source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.fail", field, value), false);
             AdvancedLocate.LOGGER.info("Couldn't change config.");
 
-            return 1;
+            return 0;
         }
     }
 
