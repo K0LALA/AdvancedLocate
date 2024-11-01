@@ -1,4 +1,4 @@
-name: Build and Publish
+name: Build and Publish (GitHub only)
 on:
   push:
     branches:
@@ -13,8 +13,6 @@ env:
   VERSION: 1.4.1+1.21.1
   LOADERS: fabric
   RELEASE_NAME: Advanced Locate
-  MODRINTH_ID: xX0k30jj
-  MODRINTH_TOKEN: ${{ secrets.PUBLISH_MODRINTH_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
 
 permissions:
@@ -51,9 +49,6 @@ jobs:
       - name: Publish (Github/Modrinth)
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          modrinth-id: "${{env.MODRINTH_ID}}"
-          modrinth-token: "${{env.MODRINTH_TOKEN}}"
-
           github-tag: "v${{env.VERSION}}"
           github-token: "${{env.GITHUB_TOKEN}}"
 
@@ -65,11 +60,3 @@ jobs:
           loaders: "${{env.LOADERS}}"
           game-versions: "${{env.MINECRAFT_VERSION}}"
           java: "${{env.JAVA_VERSION}}"
-
-      - name: Discord Webhook
-        uses: tsickert/discord-webhook@v5.3.0
-        with:
-          webhook-url: ${{env.WEBHOOK_URL}}
-          content: "New version available @everyone: [${{env.VERSION}}](https://modrinth.com/mod/advancedlocate/version/${{env.VERSION}})!"
-          username: Updates
-          avatar-url: https://github.com/K0LALA/AdvancedLocate/blob/fabric-1.21.1/src/main/resources/assets/advancedlocate/icon.png
