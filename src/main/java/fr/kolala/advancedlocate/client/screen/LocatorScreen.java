@@ -2,12 +2,17 @@ package fr.kolala.advancedlocate.client.screen;
 
 import fr.kolala.advancedlocate.AdvancedLocate;
 import fr.kolala.advancedlocate.client.AdvancedLocateClient;
+import fr.kolala.advancedlocate.client.MapMaker;
 import fr.kolala.advancedlocate.client.widget.LegacyTexturedButtonWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.*;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
@@ -19,6 +24,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.map.MapState;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -41,22 +48,6 @@ public class LocatorScreen extends Screen {
     private TextFieldWidget searchField;
     private ClickableWidget filterButton;
 
-    /**
-     * Returns the map id for the given location, creates the id if not existing
-     * @param world The current world
-     * @param x The center X of the map
-     * @param z The center Z of the map
-     * @param scale The scale of the map
-     * @return The id of the new map
-     */
-    private ItemStack getMapId(World world, int x, int z, byte scale) {
-        ItemStack map =  FilledMapItem.createMap(world, x, z, scale, false, false);
-        assert client != null;
-        MapState state = FilledMapItem.getMapState(map, client.world);
-        assert state != null;
-        state.update(player, map);
-        return map;
-    }
 
     @Override
     protected void init() {
@@ -86,37 +77,48 @@ public class LocatorScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
         int playerX = player.getBlockX();
         int playerZ = player.getBlockZ();
-        byte scale = 0;
+        byte scale = 3;
         //context.drawCenteredTextWithShadow(textRenderer, Text.literal(String.format("Player position: X%d;Z%d", player.getBlockX(), player.getBlockZ())), width / 2, height / 2, 0xffffff);
         drawMap(context, playerX, playerZ, scale);
     }
 
     private void drawMap(DrawContext context, int xPos, int zPos, byte scale) {
         assert client != null;
+        assert client.world != null;
 
         MatrixStack matrices = context.getMatrices();
 
+        VertexConsumerProvider.Immediate vcp;
+        vcp = VertexConsumerProvider.immediate(new BufferAllocator(1536));
+        int mapBgScaledSize = (int)Math.floor(.2 * client.getWindow().getScaledHeight());
+        double drawnMapBufferSize = mapBgScaledSize / 20.0;
+        int mapDataScaledSize = (int) ((mapBgScaledSize - (2 * drawnMapBufferSize)));
+        float mapDataScale = mapDataScaledSize / 128.0f;
         matrices.push();
-        float offsetX = 100.0F;
+        float offsetX = 50.0F;
         float offsetY = 50.0F;
-        matrices.translate(offsetX, offsetY, 1.0F);
-        matrices.scale(scale, scale, -1);
-        ItemStack map = getMapId(client.world, xPos, zPos, scale);
-        MapIdComponent mapId = map.get(DataComponentTypes.MAP_ID);
+        matrices.translate(offsetX + drawnMapBufferSize, offsetY + drawnMapBufferSize, 0.0F);
+        matrices.scale(mapDataScale, mapDataScale, -1);
 
-
-        // To find id and state of map, it's needed to create a real map so we can access from it
+        String text = searchField.getText();
+        int id;
+        try {
+            id = Integer.parseInt(text);
+        } catch(NumberFormatException e) {
+            id = 0;
+        }
+        MapIdComponent mapIdComponent = new MapIdComponent(id);
         client.gameRenderer.getMapRenderer()
                 .draw(
                         matrices,
-                        context.getVertexConsumers(),
-                        mapId,
-                        FilledMapItem.getMapState(map, client.world),
-                        true,
+                        vcp,
+                        mapIdComponent,
+                        client.world.getMapState(mapIdComponent),
+                        false,
                         0xF000F0
                 );
 
-        context.draw();
+        vcp.draw();
         matrices.pop();
     }
 
