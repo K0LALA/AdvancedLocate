@@ -21,6 +21,9 @@
 		"client": [
 			"fr.kolala.advancedlocate.client.AdvancedLocateClient"
 		],
+		"server": [
+			"fr.kolala.advancedlocate.server.AdvancedLocateServer"
+		],
 		"modmenu": [
 			"fr.kolala.advancedlocate.config.ModMenuImpl"
 		]

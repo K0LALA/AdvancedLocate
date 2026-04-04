@@ -4,10 +4,13 @@ import fr.kolala.advancedlocate.command.AdvancedLocateCommand;
 import fr.kolala.advancedlocate.command.ConfiguratorCommand;
 import fr.kolala.advancedlocate.command.DistanceArgumentType;
 import fr.kolala.advancedlocate.config.ConfigHelper;
+import fr.kolala.advancedlocate.network.packet.RequestMapIdPayload;
+import fr.kolala.advancedlocate.network.packet.ResponseMapIdPayload;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -27,6 +30,9 @@ public class AdvancedLocate implements ModInitializer {
 		if (!ConfigHelper.checkConfigFileIntegrity())
 			LOGGER.error("Config file is not valid! The mod may not work when trying to execute a command, be aware!");
 		registerCommands();
+
+		PayloadTypeRegistry.playC2S().register(RequestMapIdPayload.ID, RequestMapIdPayload.CODEC);
+		PayloadTypeRegistry.playS2C().register(ResponseMapIdPayload.ID, ResponseMapIdPayload.CODEC);
 	}
 
 	public static void registerCommands() {

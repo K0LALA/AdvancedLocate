@@ -1,11 +1,13 @@
 package fr.kolala.advancedlocate.client;
 
 import fr.kolala.advancedlocate.client.screen.LocatorScreen;
+import fr.kolala.advancedlocate.network.packet.ResponseMapIdPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
@@ -30,5 +32,7 @@ public class AdvancedLocateClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         registerKeybindings();
+
+        ClientPlayNetworking.registerGlobalReceiver(ResponseMapIdPayload.ID, )
     }
 }

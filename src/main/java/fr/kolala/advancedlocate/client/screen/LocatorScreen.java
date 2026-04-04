@@ -2,33 +2,22 @@ package fr.kolala.advancedlocate.client.screen;
 
 import fr.kolala.advancedlocate.AdvancedLocate;
 import fr.kolala.advancedlocate.client.AdvancedLocateClient;
-import fr.kolala.advancedlocate.client.MapMaker;
 import fr.kolala.advancedlocate.client.widget.LegacyTexturedButtonWidget;
+import fr.kolala.advancedlocate.network.packet.RequestMapIdPayload;
+import fr.kolala.advancedlocate.network.packet.ResponseMapIdPayload;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.*;
-import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.FilledMapItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.map.MapState;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
 
 @Environment(EnvType.CLIENT)
 public class LocatorScreen extends Screen {
@@ -48,6 +37,11 @@ public class LocatorScreen extends Screen {
     private TextFieldWidget searchField;
     private ClickableWidget filterButton;
 
+    public MapIdComponent mapId;
+
+    public ClientPlayNetworking.PlayPayloadHandler<ResponseMapIdPayload> receiveMapId(ResponseMapIdPayload payload, ClientPlayNetworking.Context context) {
+
+    }
 
     @Override
     protected void init() {
@@ -69,7 +63,6 @@ public class LocatorScreen extends Screen {
 
         // Draw the map from MapItem class, or create another function to use biome color instead of blocks
         // Which would probably be less costly because one block doesn't depend on the others to determine the brightness
-
     }
 
     @Override
@@ -99,6 +92,10 @@ public class LocatorScreen extends Screen {
         float offsetY = 50.0F;
         matrices.translate(offsetX + drawnMapBufferSize, offsetY + drawnMapBufferSize, 0.0F);
         matrices.scale(mapDataScale, mapDataScale, -1);
+
+        // Ask the server to create a new id and send it back
+        // Send the request to the server
+        ClientPlayNetworking.send(new RequestMapIdPayload());
 
         String text = searchField.getText();
         int id;
