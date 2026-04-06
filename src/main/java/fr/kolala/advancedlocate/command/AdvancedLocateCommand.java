@@ -144,7 +144,7 @@ public class AdvancedLocateCommand {
     private static int sendCoordinates(ServerCommandSource source, BlockPos currentPos, Pair<BlockPos, ? extends RegistryEntry<?>> result, boolean tag) {
         BlockPos blockPos = result.getFirst();
         int i = MathHelper.floor(getDistance(currentPos.getX(), currentPos.getZ(), blockPos.getX(), blockPos.getZ()));
-        MutableText text = Texts.bracketed(Text.translatable("chat.coordinates", blockPos.getX(), "~", blockPos.getZ())).styled(style -> style.withColor(Formatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + blockPos.getX() + " " + "~" + " " + blockPos.getZ())).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("chat.coordinates.tooltip"))));
+        MutableText text = Texts.bracketed(Text.translatable("chat.coordinates", blockPos.getX(), "~", blockPos.getZ())).styled(style -> style.withColor(Formatting.GREEN).withClickEvent(new ClickEvent.SuggestCommand("/tp @s " + blockPos.getX() + " " + "~" + " " + blockPos.getZ())).withHoverEvent(new HoverEvent.ShowText(Text.translatable("chat.coordinates.tooltip"))));
         String string = tag ? " (" + getKeyString(result) + ")" : "";
         source.sendFeedback(() -> Text.translatable("command.advancedlocate.structure.individual", text, i, string), false);
         return i;
@@ -170,7 +170,7 @@ public class AdvancedLocateCommand {
             sideError();
             return 1;
         }
-        if (!source.getPlayer().getServerWorld().getRegistryKey().equals(World.OVERWORLD)) {
+        if (!source.getPlayer().getWorld().getRegistryKey().equals(World.OVERWORLD)) {
             source.sendFeedback(() -> Text.translatable("command.advancedlocate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
@@ -212,7 +212,7 @@ public class AdvancedLocateCommand {
             sideError();
             return 1;
         }
-        if (!source.getPlayer().getServerWorld().getRegistryKey().equals(World.OVERWORLD)) {
+        if (!source.getPlayer().getWorld().getRegistryKey().equals(World.OVERWORLD)) {
             source.sendFeedback(() -> Text.translatable("command.advancedlocate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
