@@ -79,7 +79,7 @@ public class AdvancedLocateCommand {
     }
 
     private static Optional<? extends RegistryEntryList.ListBacked<Structure>> getStructureListForPredicate(RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate, Registry<Structure> structureRegistry) {
-        return predicate.getKey().map(key -> structureRegistry.getEntry(key).map(RegistryEntryList::of), structureRegistry::getEntryList);
+        return predicate.getKey().map(key -> structureRegistry.getOptional(key).map(RegistryEntryList::of), structureRegistry::getOptional);
     }
 
     // `/loc structure nearest (amount) [STRUCTURE] (max_distance)`,
@@ -100,7 +100,7 @@ public class AdvancedLocateCommand {
 
     private static int executeLocateNearestStructure(ServerCommandSource source, RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate, int amount, int maxDistance) throws CommandSyntaxException {
         List<Pair<BlockPos, RegistryEntry<Structure>>> structures;
-        Registry<Structure> registry = source.getWorld().getRegistryManager().get(RegistryKeys.STRUCTURE);
+        Registry<Structure> registry = source.getWorld().getRegistryManager().getOrThrow(RegistryKeys.STRUCTURE);
         RegistryEntryList<Structure> registryEntryList = getStructureListForPredicate(predicate, registry).orElseThrow(() -> STRUCTURE_INVALID_EXCEPTION.create(predicate.asString()));
         BlockPos blockPos = BlockPos.ofFloored(source.getPosition());
         ServerWorld serverWorld = source.getWorld();
