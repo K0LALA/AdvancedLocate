@@ -13,7 +13,7 @@ public class ConfiguratorCommand {
 
     public static void register (CommandDispatcher<ServerCommandSource> dispatcher) {
         for (String field : ConfigHelper.listFields()) {
-            dispatcher.register(CommandManager.literal("advancedlocate").requires(source -> source.hasPermissionLevel(2)).then(CommandManager.literal("config")
+            dispatcher.register(CommandManager.literal("advancedlocate").requires(CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK)).then(CommandManager.literal("config")
                     .then(CommandManager.literal("get")
                             .then(CommandManager.literal(field).executes(context -> getIntValue(context.getSource(), field))))
                     .then(CommandManager.literal("set")

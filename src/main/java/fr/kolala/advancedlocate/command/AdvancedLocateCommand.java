@@ -44,7 +44,7 @@ public class AdvancedLocateCommand {
 
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(CommandManager.literal("loc").requires(source -> source.hasPermissionLevel(2))
+        dispatcher.register(CommandManager.literal("loc").requires(CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK))
                 .then(CommandManager.literal("structure")
                         .then(CommandManager.literal("nearest")
                                 .then(CommandManager.argument("amount", IntegerArgumentType.integer(1, MAX_AMOUNT))
@@ -69,7 +69,7 @@ public class AdvancedLocateCommand {
                                                         IntegerArgumentType.getInteger(context, "max_distance"))))))));
 
 
-        dispatcher.register(CommandManager.literal("slime").requires(source -> source.hasPermissionLevel(2))
+        dispatcher.register(CommandManager.literal("slime").requires(CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK))
                 .then(CommandManager.literal("nearest")
                         .executes(context -> executeLocateNearestSlimeChunk(context.getSource())))
                 .then(CommandManager.literal("density")
@@ -170,7 +170,7 @@ public class AdvancedLocateCommand {
             sideError();
             return 1;
         }
-        if (!source.getPlayer().getWorld().getRegistryKey().equals(World.OVERWORLD)) {
+        if (!source.getWorld().getRegistryKey().equals(World.OVERWORLD)) {
             source.sendFeedback(() -> Text.translatable("command.advancedlocate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
@@ -212,7 +212,7 @@ public class AdvancedLocateCommand {
             sideError();
             return 1;
         }
-        if (!source.getPlayer().getWorld().getRegistryKey().equals(World.OVERWORLD)) {
+        if (!source.getWorld().getRegistryKey().equals(World.OVERWORLD)) {
             source.sendFeedback(() -> Text.translatable("command.advancedlocate.slime.wrong_dimension").styled(style -> style.withColor(Formatting.RED)), false);
             return 1;
         }
