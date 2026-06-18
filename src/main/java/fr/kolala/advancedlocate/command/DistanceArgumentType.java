@@ -9,16 +9,15 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import net.minecraft.command.CommandSource;
-import net.minecraft.text.Text;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
 
 public class DistanceArgumentType implements ArgumentType<Integer> {
     private static final Collection<String> EXAMPLES = Arrays.asList("1r", "32c", "512b", "512");
-    private static final SimpleCommandExceptionType INVALID_UNIT_EXCEPTION = new SimpleCommandExceptionType(Text.translatable("argument.advancedlocate.structure.invalid_unit"));
+    private static final SimpleCommandExceptionType INVALID_UNIT_EXCEPTION = new SimpleCommandExceptionType(Component.translatable("argument.advancedlocate.structure.invalid_unit"));
 
     private static final Object2DoubleMap<String> UNITS = new Object2DoubleOpenHashMap<>();
 
@@ -55,7 +54,7 @@ public class DistanceArgumentType implements ArgumentType<Integer> {
             return builder.buildFuture();
         }
 
-        return CommandSource.suggestMatching(UNITS.keySet(), builder.createOffset(builder.getStart() + reader.getCursor()));
+        return SharedSuggestionProvider.suggest(UNITS.keySet(), builder.createOffset(builder.getStart() + reader.getCursor()));
     }
 
     @Override

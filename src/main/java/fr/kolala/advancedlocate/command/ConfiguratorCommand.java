@@ -5,41 +5,41 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import fr.kolala.advancedlocate.AdvancedLocate;
 import fr.kolala.advancedlocate.config.ConfigHelper;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 
 public class ConfiguratorCommand {
 
-    public static void register (CommandDispatcher<ServerCommandSource> dispatcher) {
+    public static void register (CommandDispatcher<CommandSourceStack> dispatcher) {
         for (String field : ConfigHelper.listFields()) {
-            dispatcher.register(CommandManager.literal("advancedlocate").requires(source -> source.hasPermissionLevel(2)).then(CommandManager.literal("config")
-                    .then(CommandManager.literal("get")
-                            .then(CommandManager.literal(field).executes(context -> getIntValue(context.getSource(), field))))
-                    .then(CommandManager.literal("set")
-                            .then(CommandManager.literal(field).then(CommandManager.argument("value", IntegerArgumentType.integer())
+            dispatcher.register(Commands.literal("advancedlocate").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).then(Commands.literal("config")
+                    .then(Commands.literal("get")
+                            .then(Commands.literal(field).executes(context -> getIntValue(context.getSource(), field))))
+                    .then(Commands.literal("set")
+                            .then(Commands.literal(field).then(Commands.argument("value", IntegerArgumentType.integer())
                                     .executes(context -> setIntValue(context.getSource(), field, IntegerArgumentType.getInteger(context, "value"))))))));
         }
     }
 
-    private static int getIntValue(ServerCommandSource source, String field) {
-        source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.get", field, String.valueOf(ConfigHelper.getIntOrDefault(field))), false);
+    private static int getIntValue(CommandSourceStack source, String field) {
+        source.sendSuccess(() -> Component.translatable("command.advancedlocate.config.get", field, String.valueOf(ConfigHelper.getIntOrDefault(field))), false);
 
         return 1;
     }
 
-    private static int setIntValue(ServerCommandSource source, String field, int value) {
+    private static int setIntValue(CommandSourceStack source, String field, int value) {
         JsonObject json = ConfigHelper.read();
 
         if (json == null) {
-            source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.fail", field, value), false);
+            source.sendSuccess(() -> Component.translatable("command.advancedlocate.config.fail", field, value), false);
             AdvancedLocate.LOGGER.error("Couldn't get json config.");
             return 0;
         }
 
         json.addProperty(field, value);
         if (ConfigHelper.write(json)) {
-            source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.success", field, value), false);
+            source.sendSuccess(() -> Component.translatable("command.advancedlocate.config.success", field, value), false);
             AdvancedLocate.LOGGER.info("Successfully changed config file.");
 
             // Reload structure commands
@@ -48,7 +48,7 @@ public class ConfiguratorCommand {
             return 1;
         }
         else {
-            source.sendFeedback(() -> Text.translatable("command.advancedlocate.config.fail", field, value), false);
+            source.sendSuccess(() -> Component.translatable("command.advancedlocate.config.fail", field, value), false);
             AdvancedLocate.LOGGER.info("Couldn't change config.");
 
             return 0;

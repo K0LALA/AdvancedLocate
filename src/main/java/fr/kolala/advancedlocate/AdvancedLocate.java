@@ -8,8 +8,8 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
-import net.minecraft.util.Identifier;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +20,9 @@ public class AdvancedLocate implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Registering custom argument type.");
-		ArgumentTypeRegistry.registerArgumentType(Identifier.of(MOD_ID, "distance"),
+		ArgumentTypeRegistry.registerArgumentType(Identifier.fromNamespaceAndPath(MOD_ID, "distance"),
 				DistanceArgumentType.class,
-				ConstantArgumentSerializer.of(DistanceArgumentType::distanceArgumentType));
+				SingletonArgumentInfo.contextFree(DistanceArgumentType::distanceArgumentType));
 		LOGGER.info("Checking config file integrity.");
 		if (!ConfigHelper.checkConfigFileIntegrity())
 			LOGGER.error("Config file is not valid! The mod may not work when trying to execute a command, be aware!");

@@ -4,8 +4,8 @@ import com.google.gson.JsonObject;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 public class ConfigScreen {
     private final Screen screen;
@@ -15,16 +15,16 @@ public class ConfigScreen {
     public ConfigScreen(Screen parent) {
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
-                .setTitle(Text.translatable("title.advancedlocate.config"));
+                .setTitle(Component.translatable("title.advancedlocate.config"));
         builder.setSavingRunnable(() -> ConfigHelper.write(content));
 
-        ConfigCategory general = builder.getOrCreateCategory(Text.of(""));
+        ConfigCategory general = builder.getOrCreateCategory(Component.nullToEmpty(""));
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
         content = ConfigHelper.getDefaultJson();
         for (String entry : ConfigHelper.listFields()) {
-            general.addEntry(entryBuilder.startIntField(Text.translatable("option.advancedlocate." + entry), ConfigHelper.getIntOrDefault(entry))
+            general.addEntry(entryBuilder.startIntField(Component.translatable("option.advancedlocate." + entry), ConfigHelper.getIntOrDefault(entry))
                     .setDefaultValue(ConfigHelper.getDefaultValue(entry))
-                    .setTooltip(Text.translatable("tooltip.advancedlocate." + entry))
+                    .setTooltip(Component.translatable("tooltip.advancedlocate." + entry))
                     .setSaveConsumer(newValue -> content.addProperty(entry, newValue))
                     .build());
         }
