@@ -39,9 +39,9 @@ public class LocatorScreen extends Screen {
 
     public MapIdComponent mapId;
 
-    public ClientPlayNetworking.PlayPayloadHandler<ResponseMapIdPayload> receiveMapId(ResponseMapIdPayload payload, ClientPlayNetworking.Context context) {
+    /*public ClientPlayNetworking.PlayPayloadHandler<ResponseMapIdPayload> receiveMapId(ResponseMapIdPayload payload, ClientPlayNetworking.Context context) {
 
-    }
+    }*/
 
     @Override
     protected void init() {
@@ -97,6 +97,9 @@ public class LocatorScreen extends Screen {
         // Send the request to the server
         ClientPlayNetworking.send(new RequestMapIdPayload());
 
+        // We need to wait for this to arrive
+        MapIdComponent mapIdComponent = AdvancedLocateClient.lastMapId;
+
         String text = searchField.getText();
         int id;
         try {
@@ -104,7 +107,7 @@ public class LocatorScreen extends Screen {
         } catch(NumberFormatException e) {
             id = 0;
         }
-        MapIdComponent mapIdComponent = new MapIdComponent(id);
+        
         client.gameRenderer.getMapRenderer()
                 .draw(
                         matrices,

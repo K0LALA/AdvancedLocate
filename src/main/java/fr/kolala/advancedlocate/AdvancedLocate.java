@@ -32,7 +32,7 @@ public class AdvancedLocate implements ModInitializer {
 		registerCommands();
 
 		PayloadTypeRegistry.playC2S().register(RequestMapIdPayload.ID, RequestMapIdPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(ResponseMapIdPayload.ID, ResponseMapIdPayload.CODEC);
+		//PayloadTypeRegistry.playS2C().register(ResponseMapIdPayload.ID, ResponseMapIdPayload.CODEC);
 	}
 
 	public static void registerCommands() {

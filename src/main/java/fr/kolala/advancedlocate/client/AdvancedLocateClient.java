@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.component.type.MapIdComponent;
 import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
@@ -20,6 +21,8 @@ public class AdvancedLocateClient implements ClientModInitializer {
             GLFW.GLFW_KEY_N,
             "category.advanced_locate.locator"
     ));
+
+    public static MapIdComponent lastMapId;
 
     private static void registerKeybindings() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -33,6 +36,6 @@ public class AdvancedLocateClient implements ClientModInitializer {
     public void onInitializeClient() {
         registerKeybindings();
 
-        ClientPlayNetworking.registerGlobalReceiver(ResponseMapIdPayload.ID, )
+        ClientPlayNetworking.registerGlobalReceiver(ResponseMapIdPayload.ID, (payload, context) -> lastMapId = payload.mapId());
     }
 }
