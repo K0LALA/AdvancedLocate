@@ -25,8 +25,11 @@ import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.jspecify.annotations.Nullable;
 
+
 @Environment(EnvType.CLIENT)
 public class LocatorScreen extends Screen {
+
+    public static final byte SCALE = 1;
 
     public static final int OFFSET_X = 50;
     public static final int OFFSET_Y = 100;
@@ -46,6 +49,7 @@ public class LocatorScreen extends Screen {
     @Override
     protected void init() {
         assert this.minecraft.player != null;
+        int scale = 1 << SCALE;
         int centerX = (int) this.minecraft.player.getX();
         int centerZ = (int) this.minecraft.player.getZ();
         assert this.minecraft.level != null;
@@ -61,8 +65,8 @@ public class LocatorScreen extends Screen {
             double previousAverageAreaHeight = 0.0;
 
             for (int y = 0; y < HEIGHT; y++) {
-                int averagingAreaMinX = (centerX + x - 64);
-                int averagingAreaMinZ = (centerZ + y - 64);
+                int averagingAreaMinX = (centerX / scale + x - 64) * scale;
+                int averagingAreaMinZ = (centerZ / scale + y - 64) * scale;
                 Multiset<MapColor> colorCount = LinkedHashMultiset.create();
                 LevelChunk chunk = level.getChunk(SectionPos.blockToSectionCoord(averagingAreaMinX), SectionPos.blockToSectionCoord(averagingAreaMinZ));
                 if (!chunk.isEmpty()) {
@@ -79,35 +83,41 @@ public class LocatorScreen extends Screen {
 
                         averageAreaHeight = 100.0;
                     } else {
-                        blockPos.set(averagingAreaMinX, 0, averagingAreaMinZ);
-                        int columnY = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, blockPos.getX(), blockPos.getZ()) + 1;
-                        BlockState state;
-                        if (columnY <= level.getMinY()) {
-                            state = Blocks.BEDROCK.defaultBlockState();
-                        } else {
-                            do {
-                                blockPos.setY(--columnY);
-                                state = chunk.getBlockState(blockPos);
-                            } while (state.getMapColor(level, blockPos) == MapColor.NONE && columnY > level.getMinY());
+                        for (int averagingDeltaX = 0; averagingDeltaX < scale; averagingDeltaX++) {
+                            for (int averagingDeltaZ = 0; averagingDeltaZ < scale; averagingDeltaZ++) {
+                                blockPos.set(averagingAreaMinX + averagingDeltaX, 0, averagingAreaMinZ + averagingDeltaZ);
+                                int columnY = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, blockPos.getX(), blockPos.getZ()) + 1;
+                                BlockState state;
+                                if (columnY <= level.getMinY()) {
+                                    state = Blocks.BEDROCK.defaultBlockState();
+                                } else {
+                                    do {
+                                        blockPos.setY(--columnY);
+                                        state = chunk.getBlockState(blockPos);
+                                    } while (state.getMapColor(level, blockPos) == MapColor.NONE && columnY > level.getMinY());
 
-                            if (columnY > level.getMinY() && !state.getFluidState().isEmpty()) {
-                                int solidY = columnY - 1;
-                                belowPos.set(blockPos);
+                                    if (columnY > level.getMinY() && !state.getFluidState().isEmpty()) {
+                                        int solidY = columnY - 1;
+                                        belowPos.set(blockPos);
 
-                                BlockState belowBlock;
-                                do {
-                                    belowPos.setY(--solidY);
-                                    belowBlock = chunk.getBlockState(belowPos);
-                                    waterDepth++;
-                                } while (solidY > level.getMinY() && !belowBlock.getFluidState().isEmpty());
+                                        BlockState belowBlock;
+                                        do {
+                                            belowPos.setY(--solidY);
+                                            belowBlock = chunk.getBlockState(belowPos);
+                                            waterDepth++;
+                                        } while (solidY > level.getMinY() && !belowBlock.getFluidState().isEmpty());
 
-                                state = this.getCorrectStateForFluidBlock(level, state, blockPos);
+                                        state = this.getCorrectStateForFluidBlock(level, state, blockPos);
+                                    }
+                                }
+
+                                averageAreaHeight += (double)columnY / (scale * scale);
+                                colorCount.add(state.getMapColor(level, blockPos));
                             }
                         }
-
-                        colorCount.add(state.getMapColor(level, blockPos));
                     }
 
+                    waterDepth /= scale * scale;
                     MapColor color = Iterables.getFirst(Multisets.copyHighestCountFirst(colorCount), MapColor.NONE);
                     MapColor.Brightness brightness;
                     if (color == MapColor.WATER) {
@@ -120,7 +130,7 @@ public class LocatorScreen extends Screen {
                             brightness = MapColor.Brightness.NORMAL;
                         }
                     } else {
-                        double diff = (averageAreaHeight - previousAverageAreaHeight) * 4.0 / 5 + ((x + y & 1) - 0.5) * 0.4;
+                        double diff = (averageAreaHeight - previousAverageAreaHeight) * 4.0 / (scale + 4) + ((x + y & 1) - 0.5) * 0.4;
                         if (diff > 0.6) {
                             brightness = MapColor.Brightness.HIGH;
                         } else if (diff < -0.6) {
