@@ -9,6 +9,7 @@ import com.mojang.datafixers.util.Pair;
 import fr.kolala.advancedlocate.AdvancedLocate;
 import fr.kolala.advancedlocate.config.ConfigHelper;
 import fr.kolala.advancedlocate.util.IChunkGeneratorCustomMethods;
+import fr.kolala.advancedlocate.util.MapViewSavedData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -23,6 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
@@ -168,6 +170,10 @@ public class AdvancedLocateCommand {
     }
 
     private static int executeLocateNearestSlimeChunk(CommandSourceStack source) {
+        MinecraftServer server = source.getServer();
+        MapViewSavedData mapData = MapViewSavedData.getMapViewData(server);
+        AdvancedLocate.LOGGER.info(mapData.toString());
+
         long seed = source.getLevel().getSeed();
         if (source.getPlayer() == null) {
             sideError();

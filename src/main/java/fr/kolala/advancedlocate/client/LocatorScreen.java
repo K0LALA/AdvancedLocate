@@ -4,43 +4,41 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
+import com.mojang.blaze3d.platform.NativeImage;
+import fr.kolala.advancedlocate.AdvancedLocate;
+import fr.kolala.advancedlocate.util.MapViewSavedData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.state.MapRenderState;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.saveddata.maps.MapId;
-import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import org.jspecify.annotations.Nullable;
-
 
 @Environment(EnvType.CLIENT)
 public class LocatorScreen extends Screen {
 
     public static final byte SCALE = 1;
 
-    public static final int OFFSET_X = 50;
+    public static final int OFFSET_X = 150;
     public static final int OFFSET_Y = 100;
     public static final int WIDTH = 128;
     public static final int HEIGHT = 128;
 
-    private MapId id;
-    private MapItemSavedData data;
-
-
-    private final MapRenderState mapRenderState = new MapRenderState();
+    private MapViewSavedData data;
+    private Identifier location;
 
     protected LocatorScreen(Component title) {
         super(title);
@@ -55,11 +53,9 @@ public class LocatorScreen extends Screen {
         assert this.minecraft.level != null;
         ClientLevel level = this.minecraft.level;
 
-        this.id = new MapId(0);
-
         BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
         BlockPos.MutableBlockPos belowPos = new BlockPos.MutableBlockPos();
-        this.data = MapItemSavedData.createFresh(centerX, centerZ, (byte) 1, true, true, level.dimension());
+        this.data = new MapViewSavedData(centerX, centerZ, (byte) 1, ClientLevel.OVERWORLD);
 
         for (int x = 0; x < WIDTH; x++) {
             double previousAverageAreaHeight = 0.0;
@@ -141,10 +137,30 @@ public class LocatorScreen extends Screen {
                     }
 
                     previousAverageAreaHeight = averageAreaHeight;
+                    // TODO: Use value from method call (see foundConsecutiveChanges@MapItem#update)
                     this.data.updateColor(x, y, color.getPackedId(brightness));
                 }
             }
         }
+
+        this.location = createMapTexture(this.data);
+    }
+
+    private Identifier createMapTexture(MapViewSavedData mapData) {
+        Identifier location = Identifier.fromNamespaceAndPath(AdvancedLocate.MOD_ID, "mapview/0");
+        DynamicTexture texture = new DynamicTexture("MapView0", 128, 128, true);
+        this.minecraft.getTextureManager().register(location, texture);
+
+        NativeImage pixels = texture.getPixels();
+        for (int x = 0; x < 128; x++) {
+            for (int y = 0; y < 128; y++) {
+                pixels.setPixel(x, y, MapColor.getColorFromPackedId(mapData.getColor(x, y)));
+            }
+        }
+
+        texture.upload();
+
+        return location;
     }
 
     @Override
@@ -162,22 +178,11 @@ public class LocatorScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
 
-        this.extractMap(graphics, this.id, this.data);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, this.location, OFFSET_X, OFFSET_Y, 0.0F, 0.0F, 128, 128, 128, 128);
     }
 
     private BlockState getCorrectStateForFluidBlock(final ClientLevel level, final BlockState state, final BlockPos pos) {
         FluidState fluidState = state.getFluidState();
         return !fluidState.isEmpty() && !state.isFaceSturdy(level, pos, Direction.UP) ? fluidState.createLegacyBlock() : state;
-    }
-
-    private void extractMap(final GuiGraphicsExtractor graphics, final @Nullable MapId id, final @Nullable MapItemSavedData data) {
-        if (id != null && data != null) {
-            graphics.pose().pushMatrix();
-            graphics.pose().translate(OFFSET_X, OFFSET_Y);
-            graphics.pose().scale(1, 1);
-            this.minecraft.getMapRenderer().extractRenderState(id, data, this.mapRenderState);
-            graphics.map(this.mapRenderState);
-            graphics.pose().popMatrix();
-        }
     }
 }
